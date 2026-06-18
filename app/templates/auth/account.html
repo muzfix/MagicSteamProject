@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}My Account — MagicSteam{% endblock %}
+{% block content %}
+
+<div class="max-w-2xl mx-auto space-y-8">
+
+    <!-- Header -->
+    <div>
+        <h1 class="text-xl font-bold mb-1">My Account</h1>
+        <p id="acct-email" class="text-sm text-gray-500"></p>
+    </div>
+
+    <!-- Overview card -->
+    <div class="bg-white border border-gray-200 rounded-lg p-5">
+        <div class="flex items-center gap-3">
+            <div class="flex-1 min-w-0">
+                <div class="font-semibold text-sm" id="acct-username">—</div>
+                <div class="text-xs text-gray-500 mt-0.5">Member since <span id="acct-since">—</span></div>
+            </div>
+            <span id="acct-tag-badge"
+                class="hidden bg-gray-100 border border-gray-300 text-gray-600 rounded px-2 py-0.5 text-xs font-mono tracking-widest"></span>
+        </div>
+    </div>
+
+    <!-- Guild tag -->
+    <section class="bg-white border border-gray-200 rounded-lg p-5 space-y-3">
+        <h2 class="font-semibold text-sm">Guild Tag</h2>
+        <p class="text-xs text-gray-500">A 4-character tag shown next to your username on every listing. Letters only — no profanity.</p>
+        <div class="flex gap-2 items-center">
+            <input type="text" id="tag-input" maxlength="4" placeholder="FIRE"
+                autocomplete="off" spellcheck="false"
+                class="w-24 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-gray-600 font-mono tracking-widest uppercase">
+            <button id="tag-save-btn"
+                class="px-4 py-2 text-sm bg-gray-900 text-white rounded hover:bg-gray-700 transition-colors">Save</button>
+            <button id="tag-clear-btn"
+                class="px-4 py-2 text-sm border border-gray-300 rounded hover:bg-gray-50 transition-colors">Clear</button>
+        </div>
+        <div id="tag-msg" class="hidden text-xs"></div>
+    </section>
+
+    <!-- Username -->
+    <section class="bg-white border border-gray-200 rounded-lg p-5 space-y-3">
+        <h2 class="font-semibold text-sm">Change Username</h2>
+        <p class="text-xs text-gray-500">You may change your username once per year.</p>
+        <div id="username-cooldown-msg" class="hidden text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-3 py-2"></div>
+        <div class="space-y-2">
+            <input type="text" id="new-username-input" placeholder="New username" autocomplete="off"
+                class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-gray-600">
+            <input type="password" id="username-password-input" placeholder="Current password (required)" autocomplete="current-password"
+                class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-gray-600">
+        </div>
+        <button id="username-save-btn"
+            class="px-4 py-2 text-sm bg-gray-900 text-white rounded hover:bg-gray-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+            Change Username
+        </button>
+        <div id="username-msg" class="hidden text-xs"></div>
+    </section>
+
+    <!-- Password -->
+    <section class="bg-white border border-gray-200 rounded-lg p-5 space-y-3">
+        <h2 class="font-semibold text-sm">Change Password</h2>
+        <div class="space-y-2">
+            <input type="password" id="current-password-input" placeholder="Current password" autocomplete="current-password"
+                class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-gray-600">
+            <input type="password" id="new-password-input" placeholder="New password (min 8 characters)" autocomplete="new-password"
+                class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-gray-600">
+            <input type="password" id="confirm-password-input" placeholder="Confirm new password" autocomplete="new-password"
+                class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-gray-600">
+        </div>
+        <button id="password-save-btn"
+            class="px-4 py-2 text-sm bg-gray-900 text-white rounded hover:bg-gray-700 transition-colors">
+            Change Password
+        </button>
+        <div id="password-msg" class="hidden text-xs"></div>
+    </section>
+
+    <!-- Security overview -->
+    <section class="bg-white border border-gray-200 rounded-lg p-5 space-y-2">
+        <h2 class="font-semibold text-sm mb-3">Security</h2>
+        <div class="text-xs text-gray-500 space-y-1.5">
+            <div>Account role: <span id="acct-role" class="font-medium text-gray-700">—</span></div>
+            <div>Username last changed: <span id="acct-username-changed" class="font-medium text-gray-700">Never</span></div>
+        </div>
+    </section>
+
+    <!-- Logout -->
+    <div class="pb-6">
+        <button id="logout-btn" class="text-sm text-red-600 hover:text-red-800 underline">
+            Log out
+        </button>
+    </div>
+
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/account.js?v=1" defer></script>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}MagicSteam — Oman's MTG Marketplace{% endblock %}
+
+{% block content %}
+<div class="text-center mb-10 mt-2">
+    <h1 class="text-4xl font-bold tracking-tight text-gray-900 mb-2">MagicSteam</h1>
+    <p class="text-gray-500 text-base">Oman's Magic: The Gathering marketplace</p>
+</div>
+
+<div class="max-w-2xl mx-auto mb-10">
+    <input
+        type="search"
+        name="name"
+        id="home-search"
+        placeholder="Search for a card, any card!"
+        autocomplete="off"
+        class="w-full border border-gray-300 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 placeholder-gray-400"
+        hx-get="/api/catalogue/cards/picker"
+        hx-trigger="input changed delay:350ms"
+        hx-target="#browse-grid"
+    >
+    <p class="text-xs text-gray-400 mt-2 text-center">
+        Try: <em>blue flying creature</em> &nbsp;&middot;&nbsp; <em>cheap removal white</em> &nbsp;&middot;&nbsp; <em>red dragon haste rare</em> &nbsp;&middot;&nbsp; <em>boardwipe black 5 mana</em>
+    </p>
+</div>
+
+<div id="browse-grid" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 min-h-[120px]">
+    <div class="col-span-full text-center py-12">
+        <p class="text-gray-300 text-sm">Start typing to discover cards</p>
+    </div>
+</div>
+
+<div class="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-6 text-center text-sm text-gray-600">
+    <a href="/marketplace" class="p-5 bg-white border border-gray-200 rounded-xl hover:border-gray-400 transition block">
+        <div class="text-2xl mb-2">&#127861;</div>
+        <div class="font-medium text-gray-800 mb-1">Community Market</div>
+        <div class="text-xs text-gray-400">Buy cards listed by Oman's players</div>
+    </a>
+    <a href="/store" class="p-5 bg-white border border-gray-200 rounded-xl hover:border-gray-400 transition block">
+        <div class="text-2xl mb-2">&#127968;</div>
+        <div class="font-medium text-gray-800 mb-1">Official Store</div>
+        <div class="text-xs text-gray-400">Curated inventory, guaranteed condition</div>
+    </a>
+    <a href="/sell" class="p-5 bg-white border border-gray-200 rounded-xl hover:border-gray-400 transition block">
+        <div class="text-2xl mb-2">&#128184;</div>
+        <div class="font-medium text-gray-800 mb-1">Sell a Card</div>
+        <div class="text-xs text-gray-400">List your cards for the community</div>
+    </a>
+</div>
+{% endblock %}

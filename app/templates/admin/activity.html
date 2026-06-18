@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Activity Dashboard — MagicSteam Admin{% endblock %}
+{% block content %}
+
+<div class="max-w-5xl mx-auto space-y-6">
+
+    <div class="flex items-baseline justify-between">
+        <div>
+            <h1 class="text-xl font-bold mb-1">Activity Dashboard</h1>
+            <p class="text-sm text-gray-500">Login events and site usage. Admin only.</p>
+        </div>
+    </div>
+
+    <p id="loading-msg" class="text-sm text-gray-400 py-12 text-center">Loading…</p>
+
+    <div id="activity-content" class="hidden space-y-6">
+
+        <!-- Stats row -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div class="bg-white border border-gray-200 rounded-lg p-4 text-center">
+                <div id="stat-users" class="text-2xl font-bold text-gray-900">—</div>
+                <div class="text-xs text-gray-500 mt-1">Total Users</div>
+            </div>
+            <div class="bg-white border border-gray-200 rounded-lg p-4 text-center">
+                <div id="stat-active" class="text-2xl font-bold text-blue-600">—</div>
+                <div class="text-xs text-gray-500 mt-1">Active (30d)</div>
+            </div>
+            <div class="bg-white border border-gray-200 rounded-lg p-4 text-center">
+                <div id="stat-logins" class="text-2xl font-bold text-gray-900">—</div>
+                <div class="text-xs text-gray-500 mt-1">Total Logins</div>
+            </div>
+            <div class="bg-white border border-gray-200 rounded-lg p-4 text-center">
+                <div id="stat-visits" class="text-2xl font-bold text-gray-900">—</div>
+                <div class="text-xs text-gray-500 mt-1">Hourly Visits</div>
+            </div>
+        </div>
+
+        <!-- Table + geo side by side -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+            <!-- Activity table -->
+            <div class="lg:col-span-2 bg-white border border-gray-200 rounded-lg overflow-hidden">
+                <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+                    <h2 class="font-semibold text-sm">Recent Activity</h2>
+                    <span id="event-count" class="text-xs text-gray-400"></span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="bg-gray-50 text-left">
+                                <th class="px-3 py-2.5 text-[11px] font-semibold text-gray-500 uppercase tracking-wide">Time</th>
+                                <th class="px-3 py-2.5 text-[11px] font-semibold text-gray-500 uppercase tracking-wide">User</th>
+                                <th class="px-3 py-2.5 text-[11px] font-semibold text-gray-500 uppercase tracking-wide">Event</th>
+                                <th class="px-3 py-2.5 text-[11px] font-semibold text-gray-500 uppercase tracking-wide">IP</th>
+                                <th class="px-3 py-2.5 text-[11px] font-semibold text-gray-500 uppercase tracking-wide">Location</th>
+                                <th class="px-3 py-2.5 text-[11px] font-semibold text-gray-500 uppercase tracking-wide">Device</th>
+                            </tr>
+                        </thead>
+                        <tbody id="events-tbody"></tbody>
+                    </table>
+                </div>
+                <div class="p-3 border-t border-gray-100">
+                    <button id="load-more-btn"
+                            class="hidden w-full text-sm text-gray-500 hover:text-gray-800 border border-gray-200 rounded-lg py-2 hover:bg-gray-50 transition-colors">
+                        Load more
+                    </button>
+                </div>
+            </div>
+
+            <!-- Geo breakdown -->
+            <div class="space-y-4">
+                <div class="bg-white border border-gray-200 rounded-lg p-4">
+                    <h2 class="font-semibold text-sm mb-4">By Country</h2>
+                    <div id="geo-list" class="space-y-2.5"></div>
+                    <p class="mt-4 text-[10px] text-gray-400 leading-relaxed">
+                        Location requires <code class="bg-gray-100 px-1 rounded">app/data/GeoLite2-City.mmdb</code>
+                        from <a href="https://dev.maxmind.com/geoip/geolite2-free-geolocation-data"
+                                class="underline" target="_blank" rel="noopener">MaxMind</a> (free).
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/admin_activity.js?v=1" defer></script>
+{% endblock %}

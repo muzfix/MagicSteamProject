@@ -1,0 +1,51 @@
+{% for card in cards %}
+{% set sd = card.scryfall_data if card.scryfall_data else {} %}
+{% set layout = sd.get('layout', 'normal') %}
+{% set is_dfc = layout in ['transform', 'modal_dfc', 'reversible_card', 'double_faced_token', 'art_series'] %}
+{% set faces = sd.get('card_faces') or [] %}
+{% set front_image = card.image_uri or '' %}
+{% if not front_image and faces %}
+  {% set fi = faces[0].get('image_uris') or {} %}
+  {% set front_image = fi.get('normal') or '' %}
+{% endif %}
+{% set back_image = '' %}
+{% if is_dfc and faces | length > 1 %}
+  {% set iuris = faces[1].get('image_uris') or {} %}
+  {% set back_image = iuris.get('normal') or '' %}
+{% endif %}
+{% set listing_cnt = (listing_counts or {}).get(card.id, 0) %}
+<div class="browse-card cursor-pointer group"
+     data-name="{{ card.name | replace('"', '&quot;') }}"
+     data-set="{{ (card.set_name or '') | replace('"', '&quot;') }}"
+     data-image="{{ front_image }}"
+     data-back="{{ back_image }}"
+     data-layout="{{ layout }}"
+     data-price="{{ card.prices | fmt_omr }}">
+  <div class="rounded overflow-hidden hover:scale-105 hover:shadow-lg transition-all duration-150">
+    {% if front_image %}
+    <img src="{{ front_image }}" alt="{{ card.name }}" class="w-full rounded" loading="lazy">
+    {% else %}
+    <div class="bg-gray-200 aspect-[2/3] flex items-center justify-center text-xs text-gray-400 p-2 text-center leading-tight rounded">{{ card.name }}</div>
+    {% endif %}
+  </div>
+  <div class="mt-1 px-0.5">
+    <div class="text-xs font-medium text-gray-800 truncate leading-tight" title="{{ card.name }}">{{ card.name }}</div>
+    <div class="text-xs text-gray-400 capitalize leading-tight">{{ card.rarity }}</div>
+    <div class="text-xs text-gray-600 font-medium leading-tight">{{ card.prices | fmt_omr }}</div>
+    {% if listing_cnt > 0 %}
+    <div class="text-[10px] text-green-600 font-medium leading-tight mt-0.5">&#10003; {{ listing_cnt }} for sale</div>
+    {% endif %}
+  </div>
+</div>
+{% else %}
+<p class="col-span-full text-sm text-gray-400 py-10 text-center">No cards found — try different words.</p>
+{% endfor %}
+{% if has_more %}
+<button
+    class="col-span-full mt-4 mx-auto block px-8 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-500 transition-colors"
+    hx-get="/api/catalogue/cards/browse?q={{ q_enc }}&offset={{ next_offset }}"
+    hx-target="this"
+    hx-swap="outerHTML">
+    Load {{ remaining }} more cards
+</button>
+{% endif %}

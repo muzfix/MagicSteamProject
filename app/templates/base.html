@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}MagicSteam{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.12" defer></script>
+</head>
+<body class="bg-gray-50 text-gray-900 min-h-screen font-sans">
+
+    <nav class="bg-white border-b border-gray-200 px-4 sm:px-6 py-3">
+        <div class="flex items-center justify-between">
+            <a href="/" class="font-semibold text-base tracking-tight flex-shrink-0">MagicSteam</a>
+
+            <!-- Desktop nav -->
+            <div id="nav-links" class="hidden sm:flex gap-5 text-sm text-gray-600">
+                <a href="/store"       class="hover:text-gray-900">Official Store</a>
+                <a href="/marketplace" class="hover:text-gray-900">Community</a>
+                <a href="/sell"        class="hover:text-gray-900">Sell a Card</a>
+                <a id="nav-my-account" href="/account"        class="hover:text-gray-900 hidden">My Account</a>
+                <a id="nav-admin"      href="/admin/activity" class="hover:text-gray-900 text-amber-600 hidden">Admin</a>
+                <a id="nav-login"      href="/auth/login"    class="hover:text-gray-900">Login</a>
+                <a id="nav-register"   href="/auth/register" class="font-medium text-gray-900 hover:underline">Register</a>
+            </div>
+
+            <!-- Hamburger (mobile only) -->
+            <button id="nav-toggle"
+                    class="sm:hidden p-2 text-gray-500 hover:text-gray-900 rounded focus:outline-none"
+                    aria-label="Open menu">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
+                     viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Mobile dropdown -->
+        <div id="nav-mobile" class="hidden sm:hidden">
+            <div class="flex flex-col gap-0 pt-2 pb-1 border-t border-gray-100 mt-2 text-sm text-gray-600">
+                <a href="/store"       class="py-2.5 hover:text-gray-900 border-b border-gray-50">Official Store</a>
+                <a href="/marketplace" class="py-2.5 hover:text-gray-900 border-b border-gray-50">Community</a>
+                <a href="/sell"        class="py-2.5 hover:text-gray-900 border-b border-gray-50">Sell a Card</a>
+                <a id="nav-mob-account"  href="/account"        class="py-2.5 hover:text-gray-900 border-b border-gray-50 hidden">My Account</a>
+                <a id="nav-mob-admin"    href="/admin/activity" class="py-2.5 text-amber-600 hover:text-amber-800 border-b border-gray-50 hidden">Admin</a>
+                <a id="nav-mob-login"    href="/auth/login"    class="py-2.5 hover:text-gray-900 border-b border-gray-50">Login</a>
+                <a id="nav-mob-register" href="/auth/register" class="py-2.5 font-medium text-gray-900 hover:underline">Register</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="text-center text-xs text-gray-400 py-8 border-t mt-12 space-y-1">
+        <div>MagicSteam &mdash; Not affiliated with or endorsed by Wizards of the Coast</div>
+        <div><a href="/privacy" class="hover:text-gray-600 underline underline-offset-2">Privacy Policy</a></div>
+    </footer>
+
+    <!-- ── Card lightbox ────────────────────────────────────────────────── -->
+    <div id="lb" class="hidden fixed inset-0 z-50 bg-black/85 flex items-center justify-center">
+        <button id="lb-prev" class="absolute left-1 sm:left-2 top-1/2 -translate-y-1/2 text-white/70 hover:text-white text-5xl w-12 sm:w-14 h-28 flex items-center justify-center rounded-xl hover:bg-white/10 z-10 select-none">&#8249;</button>
+        <div id="lb-inner" class="flex flex-col items-center gap-3 px-12 sm:px-20 max-w-full">
+            <img id="lb-img" src="" alt=""
+                 class="max-h-[82vh] max-w-[min(520px,82vw)] object-contain rounded-xl shadow-2xl">
+            <div class="text-white text-center">
+                <div id="lb-name"  class="font-semibold text-sm"></div>
+                <div id="lb-set"   class="text-gray-400 text-xs mt-0.5"></div>
+                <div id="lb-price" class="text-green-400 text-sm font-semibold mt-1"></div>
+            </div>
+            <div class="flex gap-3 items-center">
+                <button id="lb-flip"
+                        class="hidden text-white/70 text-xs border border-white/20 rounded-lg px-4 py-1.5 hover:bg-white/10 transition">Flip card</button>
+                <span id="lb-counter" class="text-gray-500 text-xs"></span>
+            </div>
+            <!-- Versions / printings panel (homepage picker only — hidden for browse tiles) -->
+            <div id="lb-versions" class="hidden w-full max-w-[min(480px,82vw)]">
+                <div class="text-white/40 text-[10px] uppercase tracking-wide font-semibold mb-1 px-1">Other printings</div>
+                <div id="lb-versions-list"
+                     class="rounded-lg overflow-hidden bg-white/5 divide-y divide-white/10 max-h-48 overflow-y-auto"></div>
+                <button id="lb-versions-toggle"
+                        class="hidden mt-1 w-full text-center text-[11px] text-white/50 hover:text-white/80 transition-colors py-1">
+                    Show more versions ▼
+                </button>
+            </div>
+        </div>
+        <button id="lb-next" class="absolute right-1 sm:right-2 top-1/2 -translate-y-1/2 text-white/70 hover:text-white text-5xl w-12 sm:w-14 h-28 flex items-center justify-center rounded-xl hover:bg-white/10 z-10 select-none">&#8250;</button>
+    </div>
+
+    <script src="/static/js/nav.js?v=3"></script>
+    <script src="/static/js/lightbox.js?v=6" defer></script>
+    {% block scripts %}{% endblock %}
+
+</body>
+</html>

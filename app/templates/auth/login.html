@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Login — MagicSteam{% endblock %}
+{% block content %}
+<div class="max-w-sm mx-auto mt-16">
+    <h1 class="text-xl font-bold mb-6">Login</h1>
+    <form id="login-form" class="space-y-4">
+        <div>
+            <label class="block text-sm text-gray-600 mb-1">Email</label>
+            <input type="email" name="email" required autocomplete="email"
+                class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-gray-600">
+        </div>
+        <div>
+            <label class="block text-sm text-gray-600 mb-1">Password</label>
+            <input type="password" name="password" required autocomplete="current-password"
+                class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-gray-600">
+        </div>
+        <div id="login-error" class="hidden text-sm text-red-600 bg-red-50 border border-red-200 rounded px-3 py-2"></div>
+        <button type="submit" id="login-btn"
+            class="w-full bg-gray-900 text-white rounded px-4 py-2 text-sm font-medium hover:bg-gray-700 transition-colors">
+            Login
+        </button>
+    </form>
+    <p class="text-sm text-center text-gray-500 mt-5">
+        No account? <a href="/auth/register" class="text-gray-900 underline">Register</a>
+    </p>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/auth.js?v=1" defer></script>
+{% endblock %}

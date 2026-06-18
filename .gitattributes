@@ -1,0 +1,24 @@
+# Normalize line endings: store as LF in git, checkout as native on each OS.
+# This prevents the CRLF warnings on Windows and keeps diffs clean.
+* text=auto
+
+# Force LF for these file types regardless of OS (important for Linux deployment)
+*.py   text eol=lf
+*.html text eol=lf
+*.js   text eol=lf
+*.css  text eol=lf
+*.json text eol=lf
+*.md   text eol=lf
+*.yml  text eol=lf
+*.yaml text eol=lf
+*.txt  text eol=lf
+*.sh   text eol=lf
+*.cfg  text eol=lf
+*.ini  text eol=lf
+
+# Binary files — no line-ending conversion
+*.db     binary
+*.mmdb   binary
+*.png    binary
+*.jpg    binary
+*.ico    binary

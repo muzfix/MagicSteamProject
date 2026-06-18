@@ -1,0 +1,23 @@
+.env
+__pycache__/
+*.pyc
+*.pyo
+.Python
+*.db
+*.sqlite3
+venv/
+.venv/
+env/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+alembic/versions/*.py
+!alembic/versions/.gitkeep
+
+# Large binary data (GeoLite2 database — download separately)
+app/data/*.mmdb
+
+# Accidental pip install artifacts (e.g. "=2.8.0" created by pip install pkg=ver)
+=*

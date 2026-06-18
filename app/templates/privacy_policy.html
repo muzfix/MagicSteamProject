@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block title %}Privacy Policy — MagicSteam{% endblock %}
+{% block content %}
+
+<div class="max-w-2xl mx-auto space-y-8">
+
+    <div>
+        <h1 class="text-xl font-bold mb-1">Privacy Policy</h1>
+        <p class="text-xs text-gray-400">Last updated: June 2026</p>
+    </div>
+
+    <section class="space-y-3">
+        <h2 class="font-semibold text-sm">1. Who We Are</h2>
+        <p class="text-sm text-gray-600 leading-relaxed">
+            MagicSteam is a local Magic: The Gathering card marketplace based in Oman, operated as a community
+            platform for buying and selling cards among local players. Contact us at
+            <a href="mailto:muhannad.abri@gmail.com" class="underline hover:text-gray-900">muhannad.abri@gmail.com</a>
+            for any privacy-related questions or requests.
+        </p>
+    </section>
+
+    <section class="space-y-3">
+        <h2 class="font-semibold text-sm">2. Data We Collect</h2>
+        <div class="space-y-2 text-sm text-gray-600 leading-relaxed">
+            <p><span class="font-medium text-gray-800">Account data</span> — your email address, username, and
+            hashed password. We never store your password in plain text.</p>
+            <p><span class="font-medium text-gray-800">Activity data</span> — when you log in or use the site,
+            we record your IP address, approximate login timestamp, and browser/device type. This is used to
+            understand how the platform is used and to detect suspicious account activity.</p>
+            <p><span class="font-medium text-gray-800">Listing data</span> — cards you list for sale, including
+            price, condition, and notes you provide.</p>
+        </div>
+    </section>
+
+    <section class="space-y-3">
+        <h2 class="font-semibold text-sm">3. Why We Collect It</h2>
+        <ul class="space-y-2 text-sm text-gray-600 leading-relaxed list-disc list-inside">
+            <li>To operate the marketplace and manage your account</li>
+            <li>To detect and prevent unauthorized access or fraudulent listings</li>
+            <li>To understand the geographic and demographic composition of our user base, which helps us
+                improve the platform and tailor it to the Oman MTG community</li>
+            <li>To maintain activity logs that allow us to investigate disputes or reports</li>
+        </ul>
+        <p class="text-sm text-gray-600 leading-relaxed">
+            Our legal basis is <span class="font-medium text-gray-800">legitimate interest</span> under
+            Oman's Personal Data Protection Law (Royal Decree 6/2022), specifically for the purposes of
+            service operation, security, and first-party analytics.
+        </p>
+    </section>
+
+    <section class="space-y-3">
+        <h2 class="font-semibold text-sm">4. Location Data from IP Addresses</h2>
+        <p class="text-sm text-gray-600 leading-relaxed">
+            IP addresses collected during login and site use may be resolved to an approximate country and
+            city using a locally-hosted geolocation database. This data is used solely for internal analytics
+            (e.g. understanding what cities our users come from) and is never shared with third parties or
+            used for targeted advertising.
+        </p>
+    </section>
+
+    <section class="space-y-3">
+        <h2 class="font-semibold text-sm">5. How Long We Keep It</h2>
+        <ul class="space-y-1 text-sm text-gray-600 leading-relaxed list-disc list-inside">
+            <li>Account data: retained while your account is active</li>
+            <li>Activity logs (IP, timestamps): retained for 12 months, then deleted</li>
+            <li>Listing and order history: retained indefinitely for record-keeping</li>
+        </ul>
+    </section>
+
+    <section class="space-y-3">
+        <h2 class="font-semibold text-sm">6. Who We Share It With</h2>
+        <p class="text-sm text-gray-600 leading-relaxed">
+            We do not sell, rent, or share your personal data with third parties. All data is stored locally
+            on our own server infrastructure. If payment processing is enabled in the future, only the minimum
+            data required by the payment provider (Tap Payments or Stripe) will be shared, and only for the
+            purpose of completing a transaction.
+        </p>
+    </section>
+
+    <section class="space-y-3">
+        <h2 class="font-semibold text-sm">7. Your Rights (Oman PDPL)</h2>
+        <p class="text-sm text-gray-600 leading-relaxed">
+            Under Oman's Personal Data Protection Law you have the right to:
+        </p>
+        <ul class="space-y-1 text-sm text-gray-600 leading-relaxed list-disc list-inside">
+            <li>Access the personal data we hold about you</li>
+            <li>Request correction of inaccurate data</li>
+            <li>Request deletion of your account and associated personal data</li>
+            <li>Object to processing of your data for analytics purposes</li>
+        </ul>
+        <p class="text-sm text-gray-600 leading-relaxed">
+            To exercise any of these rights, email
+            <a href="mailto:muhannad.abri@gmail.com" class="underline hover:text-gray-900">muhannad.abri@gmail.com</a>.
+            We will respond within 30 days.
+        </p>
+    </section>
+
+    <section class="space-y-3">
+        <h2 class="font-semibold text-sm">8. Cookies &amp; Local Storage</h2>
+        <p class="text-sm text-gray-600 leading-relaxed">
+            MagicSteam does not use tracking cookies. We use your browser's
+            <code class="bg-gray-100 px-1 rounded text-xs">localStorage</code> to store your login token and
+            your sell cart on your own device. This data never leaves your device except as part of authenticated
+            API requests to our server.
+        </p>
+    </section>
+
+    <section class="space-y-3">
+        <h2 class="font-semibold text-sm">9. Changes to This Policy</h2>
+        <p class="text-sm text-gray-600 leading-relaxed">
+            If this policy changes materially we will update the date at the top of this page. Continued use
+            of the platform after a policy update constitutes acceptance of the revised policy.
+        </p>
+    </section>
+
+    <div class="border-t pt-6 text-xs text-gray-400">
+        MagicSteam — Not affiliated with or endorsed by Wizards of the Coast.
+        Questions? <a href="mailto:muhannad.abri@gmail.com" class="underline">muhannad.abri@gmail.com</a>
+    </div>
+
+</div>
+
+{% endblock %}

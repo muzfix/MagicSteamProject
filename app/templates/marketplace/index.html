@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}{% if mode == 'official' %}Official Store{% else %}Community Marketplace{% endif %} — MagicSteam{% endblock %}
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+    <h1 class="text-xl font-bold">{% if mode == 'official' %}Official Store{% else %}Community Marketplace{% endif %}</h1>
+    <div class="flex gap-2 text-sm">
+        <a href="/store"
+            class="border border-gray-300 rounded px-3 py-1 hover:bg-gray-100 transition-colors {% if mode == 'official' %}bg-gray-900 text-white border-gray-900{% endif %}">
+            Official Store
+        </a>
+        <a href="/marketplace"
+            class="border border-gray-300 rounded px-3 py-1 hover:bg-gray-100 transition-colors {% if mode == 'community' %}bg-gray-900 text-white border-gray-900{% endif %}">
+            Community
+        </a>
+        <a href="/sell"
+            class="border border-gray-900 rounded px-3 py-1 bg-gray-900 text-white hover:bg-gray-700 transition-colors">
+            + Sell
+        </a>
+    </div>
+</div>
+
+{% if total is defined %}
+<p class="text-xs text-gray-400 mb-4">{{ total }} listing{% if total != 1 %}s{% endif %}</p>
+{% endif %}
+
+<div class="divide-y divide-gray-100">
+    {% for listing in listings %}
+    <div class="py-4 flex items-center gap-4">
+        {% if listing.image_uri %}
+        <img src="{{ listing.image_uri }}" alt="{{ listing.card_name }}"
+             class="w-12 rounded shadow-sm flex-shrink-0">
+        {% else %}
+        <div class="w-12 h-16 bg-gray-100 rounded flex-shrink-0"></div>
+        {% endif %}
+        <div class="flex-1 min-w-0">
+            <div class="font-medium text-sm">{{ listing.card_name }}</div>
+            <div class="text-xs text-gray-500 mt-0.5 truncate">
+                {{ listing.set_name }} &middot; {{ listing.condition }}
+                {% if listing.description %}&middot; {{ listing.description }}{% endif %}
+            </div>
+            <div class="text-xs text-gray-400 mt-0.5 flex items-center gap-1">
+                Qty {{ listing.quantity }}
+                &middot;
+                <span>{{ listing.seller_username }}</span>
+                {% if listing.seller_guild_tag %}
+                <span class="inline-block bg-gray-100 border border-gray-300 text-gray-600 rounded px-1 text-[10px] font-mono leading-tight">{{ listing.seller_guild_tag }}</span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="text-right flex-shrink-0">
+            <div class="font-semibold text-sm">{{ "%.3f"|format(listing.price) }} OMR</div>
+            <button class="buy-btn mt-1 text-xs border border-gray-300 rounded px-2 py-0.5 hover:bg-gray-100 transition-colors"
+                data-listing-id="{{ listing.id }}">
+                Buy
+            </button>
+        </div>
+    </div>
+    {% else %}
+    <div class="py-16 text-center">
+        <p class="text-sm text-gray-400 mb-3">No listings yet.</p>
+        {% if mode == 'community' %}
+        <a href="/sell" class="text-sm text-gray-900 underline">Be the first to list a card</a>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/marketplace.js?v=1" defer></script>
+{% endblock %}

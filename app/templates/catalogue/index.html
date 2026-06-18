@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Browse Cards — MagicSteam{% endblock %}
+{% block content %}
+<h1 class="text-xl font-bold mb-4">Browse Cards</h1>
+<input
+    type="text"
+    name="q"
+    placeholder="Search by card name..."
+    class="w-full border border-gray-300 rounded px-3 py-2 text-sm mb-6 focus:outline-none focus:border-gray-600"
+    hx-get="/api/catalogue/cards/search"
+    hx-trigger="keyup changed delay:300ms"
+    hx-target="#results"
+    hx-include="this">
+
+<div id="results" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <p class="col-span-4 text-sm text-gray-400">Start typing to search cards.</p>
+</div>
+{% endblock %}

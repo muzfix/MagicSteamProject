@@ -1,0 +1,58 @@
+{% for group in card_groups %}
+{% set rep = group.rep %}
+{% set sd = rep.scryfall_data if rep.scryfall_data else {} %}
+{% set layout = sd.get('layout', 'normal') %}
+{% set is_dfc = layout in ['transform', 'modal_dfc', 'reversible_card', 'double_faced_token', 'art_series'] %}
+{% set faces = sd.get('card_faces') or [] %}
+{% set front_image = rep.image_uri or '' %}
+{% if not front_image and faces %}
+  {% set fi = faces[0].get('image_uris') or {} %}
+  {% set front_image = fi.get('normal') or '' %}
+{% endif %}
+{% set back_image = '' %}
+{% if is_dfc and faces | length > 1 %}
+  {% set iuris = faces[1].get('image_uris') or {} %}
+  {% set back_image = iuris.get('normal') or '' %}
+{% endif %}
+<div class="card-option cursor-pointer rounded border-2 border-transparent hover:border-blue-400 p-1 text-center transition-colors relative select-none"
+     data-scryfall-id="{{ rep.scryfall_id }}"
+     data-name="{{ rep.name | replace('"', '&quot;') }}"
+     data-set="{{ (rep.set_name or '') | replace('"', '&quot;') }}"
+     data-image="{{ front_image }}"
+     data-back="{{ back_image }}"
+     data-layout="{{ layout }}"
+     data-price="{{ rep.prices | fmt_omr }}"
+     data-variants="{{ group.variants_json | forceescape }}">
+    {% if front_image %}
+    <img src="{{ front_image }}" alt="{{ rep.name }}" class="rounded w-full pointer-events-none" loading="lazy">
+    {% else %}
+    <div class="bg-gray-200 rounded aspect-[2/3] flex items-center justify-center text-xs text-gray-400 p-1 text-center leading-tight">{{ rep.name }}</div>
+    {% endif %}
+    <div class="mt-1 space-y-0.5 px-0.5">
+        <div class="text-xs font-medium text-gray-800 truncate leading-tight" title="{{ rep.name }}">{{ rep.name }}</div>
+        <div class="text-xs text-gray-400 capitalize leading-tight">{{ rep.rarity }}</div>
+        <div class="text-xs text-gray-600 font-medium leading-tight">{{ rep.prices | fmt_omr }}</div>
+        {% if group.variant_count > 1 %}
+        <div class="text-[10px] text-blue-500 leading-tight">{{ group.variant_count }} versions</div>
+        {% endif %}
+        {% if group.total_listings > 0 %}
+        <div class="text-[10px] text-green-600 font-medium leading-tight">&#10003; {{ group.total_listings }} listed</div>
+        {% endif %}
+    </div>
+    <button class="card-add-btn mt-1.5 w-full text-[10px] font-medium bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded py-1 transition-colors leading-tight"
+            data-scryfall-id="{{ rep.scryfall_id }}">
+        + Add to sell list
+    </button>
+</div>
+{% else %}
+<p class="col-span-full text-sm text-gray-400 py-8 text-center">No cards found.</p>
+{% endfor %}
+{% if has_more %}
+<button
+    class="col-span-full mt-2 mx-auto block px-6 py-2 text-xs font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-500 transition-colors"
+    hx-get="/api/catalogue/cards/picker?name={{ name_enc }}&offset={{ next_offset }}"
+    hx-target="this"
+    hx-swap="outerHTML">
+    Load {{ remaining }} more
+</button>
+{% endif %}

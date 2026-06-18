@@ -1,0 +1,42 @@
+# Secrets — never bake these into the image
+.env
+
+# Python artefacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Local databases — production DB lives outside the container
+*.db
+*.sqlite
+*.sqlite3
+
+# Test / dev tooling
+tests/
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Git
+.git/
+.gitignore
+
+# Editor / OS noise
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Local scripts not needed at runtime
+scripts/
+
+# Log files
+*.log

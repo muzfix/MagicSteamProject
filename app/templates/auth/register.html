@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Register — MagicSteam{% endblock %}
+{% block content %}
+<div class="max-w-sm mx-auto mt-16">
+    <h1 class="text-xl font-bold mb-6">Create Account</h1>
+    <form id="register-form" class="space-y-4">
+        <div>
+            <label class="block text-sm text-gray-600 mb-1">Email</label>
+            <input type="email" name="email" required autocomplete="email"
+                class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-gray-600">
+        </div>
+        <div>
+            <label class="block text-sm text-gray-600 mb-1">Username</label>
+            <input type="text" name="username" required autocomplete="username"
+                class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-gray-600">
+        </div>
+        <div>
+            <label class="block text-sm text-gray-600 mb-1">Password</label>
+            <input type="password" name="password" required autocomplete="new-password"
+                class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-gray-600">
+        </div>
+        <div id="register-error" class="hidden text-sm text-red-600 bg-red-50 border border-red-200 rounded px-3 py-2"></div>
+        <button type="submit" id="register-btn"
+            class="w-full bg-gray-900 text-white rounded px-4 py-2 text-sm font-medium hover:bg-gray-700 transition-colors">
+            Create Account
+        </button>
+    </form>
+    <p class="text-sm text-center text-gray-500 mt-5">
+        Already have an account? <a href="/auth/login" class="text-gray-900 underline">Login</a>
+    </p>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/auth.js?v=1" defer></script>
+{% endblock %}
