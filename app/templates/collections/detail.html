@@ -64,13 +64,13 @@
         <span class="text-xs font-semibold text-gray-700">Add Card</span>
         <span id="add-mode-badge" class="hidden text-[10px] px-1.5 py-0.5 bg-amber-100 text-amber-800 rounded font-semibold"></span>
     </div>
-    <input type="search" id="col-search" placeholder="Search cards to add…"
+    <input type="search" id="col-search" name="name" placeholder="Search cards to add…"
            autocomplete="off" spellcheck="false"
            class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-gray-600"
            hx-get="/api/catalogue/cards/picker"
-           hx-trigger="input delay:300ms"
+           hx-trigger="keyup delay:300ms"
            hx-target="#col-picker-results"
-           hx-vals='js:{"name": document.getElementById("col-search").value}'>
+           hx-include="this">
 
     <!-- Category selector (for decks) -->
     <div id="category-row" class="hidden flex gap-3 mt-2 text-xs overflow-x-auto pb-1">
@@ -207,12 +207,12 @@
             <h3 class="font-semibold text-sm">Change Cover Art</h3>
             <button onclick="closeCoverPicker()" class="text-gray-400 hover:text-gray-700 text-xl leading-none">&times;</button>
         </div>
-        <input type="search" id="cover-search" placeholder="Search any card…"
+        <input type="search" id="cover-search" name="name" placeholder="Search any card…"
                class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-gray-600"
                hx-get="/api/catalogue/cards/picker"
-               hx-trigger="input delay:400ms"
+               hx-trigger="keyup delay:300ms"
                hx-target="#cover-picker-results"
-               hx-vals='js:{"name": document.getElementById("cover-search").value}'>
+               hx-include="this">
         <div id="cover-picker-results" class="mt-2 grid grid-cols-3 sm:grid-cols-4 gap-2"></div>
     </div>
 </div>
