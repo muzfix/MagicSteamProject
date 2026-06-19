@@ -22,6 +22,16 @@
 
     function initIndex() {
         if (!_token) { window.location.href = '/auth/login?next=/my-collections'; return; }
+
+        var newBtn = document.getElementById('new-collection-btn');
+        if (newBtn) newBtn.addEventListener('click', openCreateModal);
+
+        // event delegation for "Create one" link rendered inside the grid
+        var grid = document.getElementById('collections-grid');
+        if (grid) grid.addEventListener('click', function (e) {
+            if (e.target.closest('[data-create]')) openCreateModal();
+        });
+
         loadCollections();
     }
 
@@ -46,7 +56,7 @@
         if (!g) return;
         if (!cols.length) {
             g.innerHTML = '<div class="col-span-full py-16 text-center text-sm text-gray-400">' +
-                'No collections yet. <button onclick="openCreateModal()" class="underline text-gray-700">Create one</button></div>';
+                'No collections yet. <button data-create class="underline text-gray-700">Create one</button></div>';
             return;
         }
         g.innerHTML = cols.map(function (c) {
