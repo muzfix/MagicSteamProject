@@ -206,7 +206,10 @@
 <!-- ── List for Sale modal ─────────────────────────────────────────────────── -->
 <div id="sell-modal" class="modal-backdrop hidden fixed inset-0 z-50 bg-black/60 flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="bg-white rounded-t-2xl sm:rounded-xl shadow-xl w-full sm:max-w-sm p-6 space-y-4 max-h-[85vh] overflow-y-auto">
-        <h3 class="font-semibold text-sm">List for Sale</h3>
+        <div class="flex items-center justify-between">
+            <h3 class="font-semibold text-sm">List for Sale</h3>
+            <button onclick="closeSellModal()" class="text-gray-400 hover:text-gray-700 text-xl leading-none">&times;</button>
+        </div>
         <div class="space-y-1">
             <label class="text-xs text-gray-500">Price (OMR)</label>
             <div id="sell-value-hint" class="hidden text-[11px] text-orange-500 font-medium mb-0.5"></div>
@@ -224,7 +227,7 @@
                 class="flex-1 py-2 bg-gray-900 text-white rounded text-sm font-semibold hover:bg-gray-700 transition-colors">
                 List for Sale
             </button>
-            <button onclick="closeSellModal()"
+            <button id="sell-cancel-btn" onclick="closeSellModal()"
                 class="flex-1 py-2 border border-gray-300 rounded text-sm hover:bg-gray-50 transition-colors">
                 Cancel
             </button>
@@ -320,5 +323,5 @@
 
 {% endblock %}
 {% block scripts %}
-<script src="/static/js/collections.js?v=9"></script>
+<script src="/static/js/collections.js?v=10"></script>
 {% endblock %}

@@ -27,22 +27,6 @@
         return bz > 0 ? bz + ' bz' : '—';
     }
 
-    // ── Modal dismiss — Escape + backdrop click ───────────────────────────────
-
-    function bindModalDismiss() {
-        document.addEventListener('keydown', function (e) {
-            if (e.key !== 'Escape') return;
-            document.querySelectorAll('.modal-backdrop:not(.hidden)').forEach(function (m) {
-                m.classList.add('hidden');
-            });
-        });
-        document.querySelectorAll('.modal-backdrop').forEach(function (backdrop) {
-            backdrop.addEventListener('click', function (e) {
-                if (e.target === backdrop) backdrop.classList.add('hidden');
-            });
-        });
-    }
-
     // ═══════════════════════════════════════════════════════════════════════════
     // MODAL DISMISS — Escape key + click outside (shared by index + detail)
     // ═══════════════════════════════════════════════════════════════════════════
@@ -50,13 +34,20 @@
     function bindModalDismiss() {
         document.addEventListener('keydown', function (e) {
             if (e.key !== 'Escape') return;
+            // Picker-zoom and variant-popup manage their own Escape via bindVariantPopup
+            var pz = document.getElementById('picker-zoom');
+            if (pz && !pz.classList.contains('hidden')) return;
+            var vp = document.getElementById('variant-popup');
+            if (vp && !vp.classList.contains('hidden')) return;
             document.querySelectorAll('.modal-backdrop:not(.hidden)').forEach(function (m) {
                 m.classList.add('hidden');
             });
         });
         document.querySelectorAll('.modal-backdrop').forEach(function (backdrop) {
             backdrop.addEventListener('click', function (e) {
-                if (e.target === backdrop) backdrop.classList.add('hidden');
+                if (e.target !== backdrop) return;
+                if (backdrop.id === 'picker-zoom') document.body.style.overflow = '';
+                backdrop.classList.add('hidden');
             });
         });
     }
@@ -250,6 +241,8 @@
         if (scConfirm) scConfirm.addEventListener('click', doSellCard);
         var scCancel = document.getElementById('sell-card-cancel-btn');
         if (scCancel) scCancel.addEventListener('click', closeSellCardModal);
+        var sellCancelBtn = document.getElementById('sell-cancel-btn');
+        if (sellCancelBtn) sellCancelBtn.addEventListener('click', closeSellModal);
 
         bindVariantPopup();
         loadCollection();
@@ -655,6 +648,7 @@
             if (!popup || popup.classList.contains('hidden')) return;
             if (e.key === 'ArrowLeft')  { e.preventDefault(); navPickerCard(-1); }
             if (e.key === 'ArrowRight') { e.preventDefault(); navPickerCard(1); }
+            if (e.key === 'Escape')     { e.preventDefault(); closeVariantPopup(); }
         });
     }
 
@@ -936,17 +930,19 @@
 
     function doExport(fmt) {
         fetch('/api/collections/' + _COLLECTION_ID + '/export?fmt=' + fmt, { headers: { 'Authorization': 'Bearer ' + _token } })
-            .then(function (r) { return r.text(); })
-            .then(function (text) {
-                var ext = fmt === 'csv' ? '.csv' : '.txt';
-                var fileName = (_colData ? _colData.name.replace(/[^a-z0-9]/gi, '_') : 'collection') + ext;
-                var blob = new Blob([text], { type: fmt === 'csv' ? 'text/csv' : 'text/plain' });
-                var url = URL.createObjectURL(blob);
-                var a = document.createElement('a'); a.href = url; a.download = fileName;
-                document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-                showShareMsg('Exported as ' + fileName);
+            .then(function (r) {
+                if (!r.ok) { showShareMsg('Export failed (HTTP ' + r.status + ').'); return; }
+                return r.text().then(function (text) {
+                    var ext = fmt === 'csv' ? '.csv' : '.txt';
+                    var fileName = (_colData ? _colData.name.replace(/[^a-z0-9]/gi, '_') : 'collection') + ext;
+                    var blob = new Blob([text], { type: fmt === 'csv' ? 'text/csv' : 'text/plain' });
+                    var url = URL.createObjectURL(blob);
+                    var a = document.createElement('a'); a.href = url; a.download = fileName;
+                    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+                    showShareMsg('Exported as ' + fileName);
+                });
             })
-            .catch(function () { showShareMsg('Export failed.'); });
+            .catch(function () { showShareMsg('Export failed — check connection.'); });
     }
 
     function showShareMsg(text) {
@@ -1021,16 +1017,28 @@
         var price = parseFloat(document.getElementById('sell-price').value);
         var desc = (document.getElementById('sell-desc').value || '').trim();
         if (!price || price <= 0) { showSellMsg('Enter a valid price.', true); return; }
+        var submitBtn = document.querySelector('#sell-modal .flex.gap-2 button:first-child');
+        if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Listing…'; }
         fetch('/api/collections/' + _COLLECTION_ID + '/list-for-sale', {
             method: 'POST', headers: _authH(),
             body: JSON.stringify({ price: price, description: desc || null }),
         })
-        .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
-        .then(function (res) {
-            if (res.ok) {
-                _isListed = true; updateSellBtn(); closeSellModal();
-                if (_colData) { _colData.is_listed_for_sale = true; _colData.bundle_price = price; }
-            } else { showSellMsg(res.d.detail || 'Failed to list.', true); }
+        .then(function (r) {
+            if (!r.ok) {
+                return r.json()
+                    .then(function (d) {
+                        var msg = d.detail;
+                        if (Array.isArray(msg)) msg = msg.map(function (i) { return i.msg || String(i); }).join('; ');
+                        showSellMsg(msg || 'Failed to list for sale.', true);
+                    })
+                    .catch(function () { showSellMsg('Failed to list for sale (HTTP ' + r.status + ').', true); });
+            }
+            _isListed = true; updateSellBtn(); closeSellModal();
+            if (_colData) { _colData.is_listed_for_sale = true; _colData.bundle_price = price; }
+        })
+        .catch(function () { showSellMsg('Network error — please try again.', true); })
+        .then(function () {
+            if (submitBtn && submitBtn.disabled) { submitBtn.disabled = false; submitBtn.textContent = 'List for Sale'; }
         });
     }
 
@@ -1056,21 +1064,38 @@
     function doImport() {
         var textEl = document.getElementById('import-text');
         var text = textEl ? (textEl.value || '').trim() : '';
-        if (!text) return;
         var r = document.getElementById('import-result');
+        if (!text) {
+            if (r) { r.textContent = 'Paste your decklist first.'; r.className = 'text-xs p-3 rounded bg-amber-50 text-amber-800'; r.classList.remove('hidden'); }
+            return;
+        }
         if (r) { r.textContent = 'Importing…'; r.className = 'text-xs p-3 rounded bg-gray-50 text-gray-500'; r.classList.remove('hidden'); }
         fetch('/api/collections/' + _COLLECTION_ID + '/import', {
             method: 'POST', headers: _authH(), body: JSON.stringify({ text: text }),
         })
-        .then(function (res) { return res.json(); })
-        .then(function (d) {
-            var msg = 'Added ' + d.added + ' card' + (d.added !== 1 ? 's' : '') + '.';
-            if (d.skipped) msg += ' Skipped ' + d.skipped + '.';
-            if (d.errors && d.errors.length) msg += '\n\nErrors:\n' + d.errors.join('\n');
-            if (r) { r.textContent = msg; r.className = 'text-xs p-3 rounded whitespace-pre-wrap ' + (d.added > 0 ? 'bg-green-50 text-green-800' : 'bg-amber-50 text-amber-800'); r.classList.remove('hidden'); }
-            if (d.added > 0) loadCollection();
+        .then(function (res) {
+            if (!res.ok) {
+                return res.json()
+                    .then(function (d) {
+                        var msg = d.detail;
+                        if (Array.isArray(msg)) msg = msg.map(function (i) { return i.msg || String(i); }).join('; ');
+                        if (r) { r.textContent = msg || 'Import failed.'; r.className = 'text-xs p-3 rounded bg-red-50 text-red-800'; r.classList.remove('hidden'); }
+                    })
+                    .catch(function () {
+                        if (r) { r.textContent = 'Import failed (HTTP ' + res.status + ').'; r.className = 'text-xs p-3 rounded bg-red-50 text-red-800'; r.classList.remove('hidden'); }
+                    });
+            }
+            return res.json().then(function (d) {
+                var msg = 'Added ' + d.added + ' card' + (d.added !== 1 ? 's' : '') + '.';
+                if (d.skipped) msg += ' Skipped ' + d.skipped + '.';
+                if (d.errors && d.errors.length) msg += '\n\nErrors:\n' + d.errors.join('\n');
+                if (r) { r.textContent = msg; r.className = 'text-xs p-3 rounded whitespace-pre-wrap ' + (d.added > 0 ? 'bg-green-50 text-green-800' : 'bg-amber-50 text-amber-800'); r.classList.remove('hidden'); }
+                if (d.added > 0) loadCollection();
+            });
         })
-        .catch(function () { if (r) { r.textContent = 'Import failed.'; r.classList.remove('hidden'); } });
+        .catch(function () {
+            if (r) { r.textContent = 'Import failed — check your connection.'; r.className = 'text-xs p-3 rounded bg-red-50 text-red-800'; r.classList.remove('hidden'); }
+        });
     }
 
     // ── Window exports (for remaining onclick= in modal buttons) ─────────────
