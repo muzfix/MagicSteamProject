@@ -21,11 +21,13 @@
      data-back="{{ back_image }}"
      data-layout="{{ layout }}"
      data-price="{{ card.prices | fmt_omr }}">
-  <div class="rounded overflow-hidden hover:scale-105 hover:shadow-lg transition-all duration-150">
+  {% set is_landscape = layout in ['planar', 'scheme', 'art_series', 'vanguard'] %}
+  <div class="rounded overflow-hidden hover:scale-105 hover:shadow-lg transition-all duration-150
+              {{ 'aspect-[7/5]' if is_landscape else 'aspect-[5/7]' }} bg-gray-100 flex items-center justify-center">
     {% if front_image %}
-    <img src="{{ front_image }}" alt="{{ card.name }}" class="w-full rounded" loading="lazy">
+    <img src="{{ front_image }}" alt="{{ card.name }}" class="w-full h-full object-contain rounded" loading="lazy">
     {% else %}
-    <div class="bg-gray-200 aspect-[2/3] flex items-center justify-center text-xs text-gray-400 p-2 text-center leading-tight rounded">{{ card.name }}</div>
+    <div class="text-xs text-gray-400 p-2 text-center leading-tight">{{ card.name }}</div>
     {% endif %}
   </div>
   <div class="mt-1 px-0.5">

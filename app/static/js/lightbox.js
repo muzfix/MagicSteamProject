@@ -10,6 +10,13 @@
             .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
 
+    function _fmtPrice(v) {
+        if (v == null || v === '' || isNaN(parseFloat(v))) return '—';
+        var n = parseFloat(v);
+        if (n === 0) return '—';
+        return n >= 1 ? n.toFixed(3) + ' OMR' : Math.round(n * 1000) + ' bz';
+    }
+
     // ── Public API ────────────────────────────────────────────────────────────
     window.openLightbox = function (el) {
         var selector = el.classList.contains('browse-card') ? '.browse-card' : '.card-option';
@@ -74,7 +81,7 @@
         var flip  = document.getElementById('lb-flip');
         if (img)   { img.src = _lbCurrentImg; img.alt = v.name; }
         if (setEl)   setEl.textContent = v.set;
-        if (prEl)    prEl.textContent  = v.price || '—';
+        if (prEl)    prEl.textContent  = _fmtPrice(v.price);
         if (flip) {
             if (_lbCurrentBack) { flip.textContent = 'Flip card'; flip.classList.remove('hidden'); }
             else                   flip.classList.add('hidden');
@@ -102,7 +109,7 @@
             return (
                 '<div class="lb-ver-row flex items-center gap-2 px-3 py-2 hover:bg-white/10 cursor-pointer transition-colors" data-vidx="' + i + '">' +
                     '<div class="flex-1 min-w-0 text-white/80 text-[11px] truncate">' + _esc(v.set) + foilHtml + '</div>' +
-                    '<div class="text-green-400 font-semibold text-[11px] flex-shrink-0">' + _esc(v.price || '—') + '</div>' +
+                    '<div class="text-green-400 font-semibold text-[11px] flex-shrink-0">' + _esc(_fmtPrice(v.price)) + '</div>' +
                 '</div>'
             );
         }).join('');
@@ -131,7 +138,10 @@
         _lbCurrentImg  = (v0 && (v0.img_hd || v0.img)) || c.img;
         _lbCurrentBack = (v0 && v0.img_back) || c.back || '';
 
+        var isLandscape = c.layout === 'planar' || c.layout === 'scheme' || c.layout === 'art_series' || c.layout === 'vanguard';
         var img = document.getElementById('lb-img');
+        img.className = 'object-contain rounded-xl shadow-2xl ' +
+            (isLandscape ? 'max-h-[70vh] max-w-[min(900px,92vw)]' : 'max-h-[82vh] max-w-[min(520px,82vw)]');
         img.src = _lbCurrentImg;
         img.alt = c.name;
         document.getElementById('lb-name').textContent  = c.name;

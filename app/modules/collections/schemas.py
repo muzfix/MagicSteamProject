@@ -45,6 +45,7 @@ class CollectionCardOut(BaseModel):
     quantity: int
     category: CardCategory
     price_omr: Optional[float]
+    layout: Optional[str] = None
     type_line: Optional[str] = None
     mana_cost: Optional[str] = None
     cmc: Optional[float] = None

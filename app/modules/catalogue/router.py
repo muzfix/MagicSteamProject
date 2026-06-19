@@ -128,6 +128,7 @@ def group_picker_cards(cards: list, listing_counts: dict | None = None) -> list[
                 "img_hd":      img_hd,
                 "img_back":    img_back,
                 "price":       _get_price_omr(v.prices),
+                "layout":      sd.get("layout", "normal"),
                 "foil_label":  _foil_label(sd),
                 "listing_cnt": lc.get(v.id, 0),
             })

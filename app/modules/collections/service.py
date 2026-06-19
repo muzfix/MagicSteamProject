@@ -57,6 +57,7 @@ def _card_out(cc: CollectionCard, card: Card, db: Session) -> dict:
         "type_line": card.type_line,
         "mana_cost": card.mana_cost,
         "cmc": float(card.cmc) if card.cmc is not None else None,
+        "layout": card.scryfall_data.get("layout", "normal") if card.scryfall_data else "normal",
         "oracle_text": card.oracle_text,
     }
 

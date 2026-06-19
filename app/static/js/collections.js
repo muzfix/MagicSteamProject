@@ -375,7 +375,7 @@
         var setLine = _esc(c.set_name || '') + (c.released_at ? ' (' + _esc(c.released_at) + ')' : '');
         return '<div class="group relative bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow border border-gray-100" id="cc-' + c.id + '">' +
             '<div class="aspect-[5/7] bg-gray-50 overflow-hidden relative">' +
-                (c.image_uri ? '<img src="' + _esc(c.image_uri) + '" class="w-full h-full object-cover" alt="">' :
+                (c.image_uri ? '<img src="' + _esc(c.image_uri) + '" class="w-full h-full ' + ((c.layout === 'planar' || c.layout === 'scheme' || c.layout === 'art_series' || c.layout === 'vanguard') ? 'object-contain' : 'object-cover') + '" alt="">' :
                     '<div class="w-full h-full flex items-center justify-center text-gray-200 text-xs p-1 text-center">' + _esc(c.name) + '</div>') +
                 (c.quantity > 1 ? '<div class="absolute top-1.5 left-1.5 bg-black/70 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">×' + c.quantity + '</div>' : '') +
                 '<button class="col-remove-btn absolute top-1.5 right-1.5 w-6 h-6 bg-black/60 hover:bg-red-600 rounded-full text-white text-xs leading-none opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center" data-ccid="' + c.id + '" title="Remove">&times;</button>' +
@@ -557,6 +557,7 @@
 
         var selV = _currentVariants[_selectedVariantIdx] || _currentVariants[0];
         if (previewImg) { previewImg.src = selV ? (selV.img_hd || selV.img || '') : ''; previewImg.alt = name; }
+        _updatePickerPreviewInfo(selV, name);
 
         if (listEl) {
             listEl.innerHTML = _currentVariants.length
@@ -599,6 +600,7 @@
                     _selectedVariantIdx = vi;
                     var v = _currentVariants[vi];
                     if (previewImg && v) previewImg.src = v.img_hd || v.img || '';
+                    _updatePickerPreviewInfo(v, null);
                     // update highlight
                     listEl.querySelectorAll('.variant-row').forEach(function (r, ri) {
                         var s = ri === vi;
@@ -617,8 +619,38 @@
         var nextBtn = document.getElementById('picker-next-btn');
         if (nextBtn) nextBtn.addEventListener('click', function () { navPickerCard(1); });
 
-        // Keyboard ← → navigate between search results while viewer is open
+        // Zoom button on the HD preview thumbnail
+        var zoomBtn = document.getElementById('variant-preview-zoom-btn');
+        if (zoomBtn) zoomBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            var v = _currentVariants[_selectedVariantIdx] || _currentVariants[0];
+            if (v) _openPickerZoom(v);
+        });
+
+        // Zoom overlay controls
+        var pz      = document.getElementById('picker-zoom');
+        var pzClose = document.getElementById('pz-close');
+        var pzPrev  = document.getElementById('pz-prev');
+        var pzNext  = document.getElementById('pz-next');
+        var pzFlip  = document.getElementById('pz-flip');
+        var pzImg   = document.getElementById('pz-img');
+        if (pzClose) pzClose.addEventListener('click', _closePickerZoom);
+        if (pzImg)   pzImg.addEventListener('click',   _closePickerZoom);
+        if (pz)      pz.addEventListener('click', function (e) { if (e.target === pz) _closePickerZoom(); });
+        if (pzPrev)  pzPrev.addEventListener('click', function (e) { e.stopPropagation(); _navPickerZoomVariant(-1); });
+        if (pzNext)  pzNext.addEventListener('click', function (e) { e.stopPropagation(); _navPickerZoomVariant(1); });
+        if (pzFlip)  pzFlip.addEventListener('click', function (e) { e.stopPropagation(); _pzFlip(); });
+
+        // Keyboard: zoom gets priority; then popup card navigation
         document.addEventListener('keydown', function (e) {
+            var pz2 = document.getElementById('picker-zoom');
+            if (pz2 && !pz2.classList.contains('hidden')) {
+                if (e.key === 'ArrowLeft')               { e.preventDefault(); _navPickerZoomVariant(-1); }
+                if (e.key === 'ArrowRight')              { e.preventDefault(); _navPickerZoomVariant(1); }
+                if (e.key === 'f' || e.key === 'F')      { e.preventDefault(); _pzFlip(); }
+                if (e.key === 'Escape')                  { e.preventDefault(); _closePickerZoom(); }
+                return;
+            }
             var popup = document.getElementById('variant-popup');
             if (!popup || popup.classList.contains('hidden')) return;
             if (e.key === 'ArrowLeft')  { e.preventDefault(); navPickerCard(-1); }
@@ -629,6 +661,96 @@
     function closeVariantPopup() {
         var popup = document.getElementById('variant-popup');
         if (popup) popup.classList.add('hidden');
+        _closePickerZoom();
+    }
+
+    // ── Picker preview info ───────────────────────────────────────────────────
+    function _updatePickerPreviewInfo(v, fallbackName) {
+        var nameEl  = document.getElementById('variant-preview-name');
+        var setEl   = document.getElementById('variant-preview-set');
+        var priceEl = document.getElementById('variant-preview-price');
+        if (!v) {
+            if (nameEl)  nameEl.textContent  = fallbackName || '';
+            if (setEl)   setEl.textContent   = '';
+            if (priceEl) priceEl.textContent = '';
+            return;
+        }
+        if (nameEl)  nameEl.textContent  = v.name || fallbackName || '';
+        if (setEl)   setEl.textContent   = v.set ? (v.set + (v.released_at ? ' (' + v.released_at + ')' : '')) : '';
+        if (priceEl) priceEl.textContent = v.price != null ? _fmtOMR(v.price) : '—';
+    }
+
+    // ── Picker zoom overlay ───────────────────────────────────────────────────
+    var _pzCurrentBack = '';
+    var _pzCurrentImg  = '';
+    var _pzFlipped     = false;
+
+    function _openPickerZoom(v) {
+        var pz = document.getElementById('picker-zoom');
+        if (!pz || !v) return;
+        _pzCurrentImg  = v.img_hd || v.img || '';
+        _pzCurrentBack = v.img_back || '';
+        _pzFlipped     = false;
+
+        var isLandscape = (v.layout === 'planar' || v.layout === 'scheme' || v.layout === 'art_series' || v.layout === 'vanguard');
+        var img = document.getElementById('pz-img');
+        if (img) {
+            img.className = 'object-contain rounded-xl shadow-2xl cursor-zoom-out ' +
+                (isLandscape ? 'max-h-[70vh] max-w-[min(900px,92vw)]' : 'max-h-[78vh] max-w-[min(480px,90vw)]');
+            img.src = _pzCurrentImg;
+            img.alt = v.name || '';
+        }
+        var nameEl  = document.getElementById('pz-name');
+        var setEl   = document.getElementById('pz-set');
+        var priceEl = document.getElementById('pz-price');
+        var counter = document.getElementById('pz-counter');
+        var flip    = document.getElementById('pz-flip');
+        if (nameEl)  nameEl.textContent  = v.name || '';
+        if (setEl)   setEl.textContent   = v.set ? (v.set + (v.released_at ? ' (' + v.released_at + ')' : '')) : '';
+        if (priceEl) priceEl.textContent = v.price != null ? _fmtOMR(v.price) : '—';
+        if (counter) counter.textContent = _currentVariants.length > 1
+            ? (_selectedVariantIdx + 1) + ' / ' + _currentVariants.length : '';
+        if (flip) {
+            if (_pzCurrentBack) { flip.textContent = 'Flip card'; flip.classList.remove('hidden'); }
+            else flip.classList.add('hidden');
+        }
+        pz.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function _closePickerZoom() {
+        var pz = document.getElementById('picker-zoom');
+        if (pz) pz.classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+
+    function _navPickerZoomVariant(delta) {
+        if (_currentVariants.length < 2) return;
+        _selectedVariantIdx = (_selectedVariantIdx + delta + _currentVariants.length) % _currentVariants.length;
+        var v = _currentVariants[_selectedVariantIdx];
+        // sync variant list highlight
+        var listEl = document.getElementById('variant-list');
+        if (listEl) {
+            listEl.querySelectorAll('.variant-row').forEach(function (r, ri) {
+                if (ri === _selectedVariantIdx) { r.classList.add('bg-blue-50'); r.classList.remove('hover:bg-gray-50'); }
+                else { r.classList.remove('bg-blue-50'); r.classList.add('hover:bg-gray-50'); }
+            });
+        }
+        // sync thumbnail + info in underlying popup
+        var previewImg = document.getElementById('variant-preview-img');
+        if (previewImg && v) previewImg.src = v.img_hd || v.img || '';
+        _updatePickerPreviewInfo(v, null);
+        // re-open zoom with new variant
+        _openPickerZoom(v);
+    }
+
+    function _pzFlip() {
+        if (!_pzCurrentBack) return;
+        _pzFlipped = !_pzFlipped;
+        var img  = document.getElementById('pz-img');
+        var flip = document.getElementById('pz-flip');
+        if (img)  img.src         = _pzFlipped ? _pzCurrentBack : _pzCurrentImg;
+        if (flip) flip.textContent = _pzFlipped ? 'Show front' : 'Flip card';
     }
 
     function getSelectedCategory() {
