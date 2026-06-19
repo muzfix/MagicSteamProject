@@ -23,11 +23,11 @@
         <div class="space-y-2">
             <label class="text-xs text-gray-500 font-semibold uppercase tracking-wide">Type</label>
             <div class="grid grid-cols-2 gap-2">
-                <button id="type-collection" onclick="setType('collection')"
+                <button id="type-collection"
                     class="py-2 text-sm rounded border-2 border-gray-900 bg-gray-900 text-white font-semibold transition-colors">
                     Collection
                 </button>
-                <button id="type-deck" onclick="setType('deck')"
+                <button id="type-deck"
                     class="py-2 text-sm rounded border-2 border-gray-200 text-gray-600 hover:border-gray-400 font-semibold transition-colors">
                     Deck
                 </button>
@@ -59,11 +59,11 @@
         <div id="create-msg" class="hidden text-xs text-red-600"></div>
 
         <div class="flex gap-2 pt-1">
-            <button id="create-btn" onclick="doCreate()"
+            <button id="create-btn"
                 class="flex-1 py-2 bg-gray-900 text-white rounded text-sm font-semibold hover:bg-gray-700 transition-colors">
                 Create
             </button>
-            <button onclick="closeCreateModal()"
+            <button id="cancel-create-btn"
                 class="flex-1 py-2 border border-gray-300 rounded text-sm hover:bg-gray-50 transition-colors">
                 Cancel
             </button>
@@ -73,5 +73,5 @@
 
 {% endblock %}
 {% block scripts %}
-<script src="/static/js/collections.js?v=2" defer></script>
+<script src="/static/js/collections.js?v=3" defer></script>
 {% endblock %}
