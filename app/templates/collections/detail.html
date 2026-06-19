@@ -3,13 +3,12 @@
 {% block content %}
 
 <!-- ── Header bar ─────────────────────────────────────────────────────────── -->
-<div id="collection-header" class="flex items-start gap-4 mb-6">
+<div id="collection-header" class="flex flex-col sm:flex-row items-start gap-4 mb-6">
     <!-- Cover art -->
     <div class="relative group flex-shrink-0">
         <div id="cover-wrap"
-             class="w-24 aspect-[5/7] rounded-lg overflow-hidden shadow bg-gray-100 cursor-pointer"
-             title="Click to change cover art"
-             onclick="openCoverPicker()">
+             class="w-28 sm:w-24 aspect-[5/7] rounded-lg overflow-hidden shadow bg-gray-100 cursor-pointer"
+             title="Click to change cover art">
             <img id="cover-img" src="" alt="" class="w-full h-full object-cover hidden">
             <div id="cover-placeholder" class="w-full h-full flex items-center justify-center text-gray-300">
                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -35,16 +34,16 @@
         <!-- Action buttons -->
         <div class="flex flex-wrap gap-2 mt-3">
             <button id="share-btn"
-                class="text-xs border border-gray-300 rounded px-3 py-1.5 hover:bg-gray-100 transition-colors flex items-center gap-1">
+                class="text-xs border border-gray-300 rounded px-3 py-2 hover:bg-gray-100 transition-colors flex items-center gap-1 min-h-[36px]">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
                 Share / Export
             </button>
             <button id="sell-toggle-btn"
-                class="text-xs border border-gray-300 rounded px-3 py-1.5 hover:bg-gray-100 transition-colors">
+                class="text-xs border border-gray-300 rounded px-3 py-2 hover:bg-gray-100 transition-colors min-h-[36px]">
                 List Collection for Sale
             </button>
             <button id="import-btn"
-                class="text-xs border border-gray-300 rounded px-3 py-1.5 hover:bg-gray-100 transition-colors">
+                class="text-xs border border-gray-300 rounded px-3 py-2 hover:bg-gray-100 transition-colors min-h-[36px]">
                 Import
             </button>
         </div>
@@ -61,14 +60,14 @@
            autocomplete="off" spellcheck="false"
            class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-gray-600"
            hx-get="/api/catalogue/cards/picker"
-           hx-trigger="input changed delay:400ms"
+           hx-trigger="input delay:400ms"
            hx-target="#col-picker-results"
            hx-include="[name='q_col']"
            hx-vals='js:{"q": document.getElementById("col-search").value, "limit": 24}'>
     <input type="hidden" name="q_col" value="">
 
     <!-- Category selector (for decks) -->
-    <div id="category-row" class="hidden flex gap-2 mt-2 text-xs">
+    <div id="category-row" class="hidden flex gap-3 mt-2 text-xs overflow-x-auto pb-1">
         <span class="text-gray-500 self-center">Adding to:</span>
         <label class="flex items-center gap-1 cursor-pointer">
             <input type="radio" name="add-category" value="mainboard" checked class="accent-gray-900">
@@ -93,8 +92,8 @@
 </div>
 
 <!-- ── Variant picker popup ────────────────────────────────────────────────── -->
-<div id="variant-popup" class="hidden fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-5 space-y-3 max-h-[80vh] overflow-y-auto">
+<div id="variant-popup" class="modal-backdrop hidden fixed inset-0 z-50 bg-black/70 flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white rounded-t-2xl sm:rounded-xl shadow-xl w-full sm:max-w-md p-5 space-y-3 max-h-[85vh] overflow-y-auto">
         <div class="flex items-center justify-between">
             <h3 id="variant-popup-name" class="font-semibold text-sm"></h3>
             <button onclick="closeVariantPopup()" class="text-gray-400 hover:text-gray-700 text-xl leading-none">&times;</button>
@@ -104,8 +103,8 @@
 </div>
 
 <!-- ── Share / Export modal ────────────────────────────────────────────────── -->
-<div id="share-modal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl shadow-xl w-full max-w-sm p-6 space-y-3">
+<div id="share-modal" class="modal-backdrop hidden fixed inset-0 z-50 bg-black/60 flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white rounded-t-2xl sm:rounded-xl shadow-xl w-full sm:max-w-sm p-6 space-y-3 max-h-[85vh] overflow-y-auto">
         <div class="flex items-center justify-between">
             <h3 class="font-semibold text-sm">Share &amp; Export</h3>
             <button onclick="closeShare()" class="text-gray-400 hover:text-gray-700 text-xl leading-none">&times;</button>
@@ -135,8 +134,8 @@
 </div>
 
 <!-- ── List for Sale modal ─────────────────────────────────────────────────── -->
-<div id="sell-modal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl shadow-xl w-full max-w-sm p-6 space-y-4">
+<div id="sell-modal" class="modal-backdrop hidden fixed inset-0 z-50 bg-black/60 flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white rounded-t-2xl sm:rounded-xl shadow-xl w-full sm:max-w-sm p-6 space-y-4 max-h-[85vh] overflow-y-auto">
         <h3 class="font-semibold text-sm">List for Sale</h3>
         <div class="space-y-1">
             <label class="text-xs text-gray-500">Price (OMR)</label>
@@ -163,8 +162,8 @@
 </div>
 
 <!-- ── Import modal ────────────────────────────────────────────────────────── -->
-<div id="import-modal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6 space-y-4">
+<div id="import-modal" class="modal-backdrop hidden fixed inset-0 z-50 bg-black/60 flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white rounded-t-2xl sm:rounded-xl shadow-xl w-full sm:max-w-md p-6 space-y-4 max-h-[85vh] overflow-y-auto">
         <div class="flex items-center justify-between">
             <h3 class="font-semibold text-sm">Import Cards</h3>
             <button onclick="closeImport()" class="text-gray-400 hover:text-gray-700 text-xl leading-none">&times;</button>
@@ -192,8 +191,8 @@
 </div>
 
 <!-- ── Cover picker modal ──────────────────────────────────────────────────── -->
-<div id="cover-modal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-5 space-y-3">
+<div id="cover-modal" class="modal-backdrop hidden fixed inset-0 z-50 bg-black/60 flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white rounded-t-2xl sm:rounded-xl shadow-xl w-full sm:max-w-md p-5 space-y-3 max-h-[85vh] overflow-y-auto">
         <div class="flex items-center justify-between">
             <h3 class="font-semibold text-sm">Change Cover Art</h3>
             <button onclick="closeCoverPicker()" class="text-gray-400 hover:text-gray-700 text-xl leading-none">&times;</button>
@@ -201,7 +200,7 @@
         <input type="search" id="cover-search" placeholder="Search any card…"
                class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-gray-600"
                hx-get="/api/catalogue/cards/picker"
-               hx-trigger="input changed delay:400ms"
+               hx-trigger="input delay:400ms"
                hx-target="#cover-picker-results"
                hx-vals='js:{"q": document.getElementById("cover-search").value, "limit": 16}'>
         <div id="cover-picker-results" class="mt-2"></div>
@@ -209,8 +208,8 @@
 </div>
 
 <!-- ── Sell individual card modal ───────────────────────────────────────────── -->
-<div id="sell-card-modal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl shadow-xl w-full max-w-sm p-6 space-y-4">
+<div id="sell-card-modal" class="modal-backdrop hidden fixed inset-0 z-50 bg-black/60 flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white rounded-t-2xl sm:rounded-xl shadow-xl w-full sm:max-w-sm p-6 space-y-4 max-h-[85vh] overflow-y-auto">
         <h3 class="font-semibold text-sm">List Card for Sale</h3>
         <div id="sell-card-preview" class="flex gap-3 items-center min-h-[3rem]"></div>
         <div class="space-y-1">
@@ -253,5 +252,5 @@
 <script>
 var _COLLECTION_ID = {{ collection_id }};
 </script>
-<script src="/static/js/collections.js?v=3" defer></script>
+<script src="/static/js/collections.js?v=4" defer></script>
 {% endblock %}
