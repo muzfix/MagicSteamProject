@@ -45,6 +45,10 @@ class CollectionCardOut(BaseModel):
     quantity: int
     category: CardCategory
     price_omr: Optional[float]
+    type_line: Optional[str] = None
+    mana_cost: Optional[str] = None
+    cmc: Optional[float] = None
+    oracle_text: Optional[str] = None
 
     model_config = {"from_attributes": True}
 

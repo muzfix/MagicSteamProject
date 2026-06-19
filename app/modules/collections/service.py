@@ -43,7 +43,24 @@ def _card_out(cc: CollectionCard, card: Card, db: Session) -> dict:
         "quantity": cc.quantity,
         "category": cc.category,
         "price_omr": _omr(card),
+        "type_line": card.type_line,
+        "mana_cost": card.mana_cost,
+        "cmc": float(card.cmc) if card.cmc is not None else None,
+        "oracle_text": card.oracle_text,
     }
+
+
+def _can_partner(card: Card) -> bool:
+    """True if this card is eligible to share the command zone with another commander."""
+    oracle = (card.oracle_text or "").lower()
+    tl = (card.type_line or "").lower()
+    return (
+        "partner" in oracle or
+        "choose a background" in oracle or
+        "friends forever" in oracle or
+        "doctor's companion" in oracle or
+        ("background" in tl and "enchantment" in tl)  # Background enchantment subtype
+    )
 
 
 def _collection_summary(col: Collection, db: Session) -> dict:
@@ -164,6 +181,35 @@ def add_card(db: Session, collection_id: int, user_id: int, data: CollectionCard
 
     _check_limits(db, col, data.category, data.quantity)
 
+    # Commander slot partnership validation
+    if (col.type == CollectionType.deck and
+            col.format in (DeckFormat.commander, DeckFormat.brawl) and
+            data.category == CardCategory.commander):
+        existing_cmds = (
+            db.query(CollectionCard)
+            .filter(
+                CollectionCard.collection_id == collection_id,
+                CollectionCard.category == CardCategory.commander,
+            )
+            .all()
+        )
+        if len(existing_cmds) >= 1:
+            if not _can_partner(card):
+                raise ValueError(
+                    "Commander slot is full. Add a second commander only if both cards "
+                    "have Partner, 'Choose a Background', 'Friends forever', or a similar "
+                    "dual-commander ability."
+                )
+            existing_cards = [
+                db.query(Card).filter(Card.id == ec.card_id).first()
+                for ec in existing_cmds
+            ]
+            if not any(_can_partner(ec) for ec in existing_cards if ec):
+                raise ValueError(
+                    "Your existing commander doesn't support a partner. "
+                    "Both commanders need a compatible dual-commander ability."
+                )
+
     existing = db.query(CollectionCard).filter(
         CollectionCard.collection_id == collection_id,
         CollectionCard.card_id == card.id,
@@ -182,8 +228,10 @@ def add_card(db: Session, collection_id: int, user_id: int, data: CollectionCard
         )
         db.add(cc)
 
-    # Auto-set cover art from first card added
-    if not col.cover_image_uri and card.image_uri:
+    # Commander always becomes the cover; otherwise use first card added
+    if data.category == CardCategory.commander and card.image_uri:
+        col.cover_image_uri = card.image_uri
+    elif not col.cover_image_uri and card.image_uri:
         col.cover_image_uri = card.image_uri
 
     col.updated_at = datetime.now(timezone.utc)

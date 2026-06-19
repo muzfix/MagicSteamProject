@@ -107,6 +107,7 @@ def group_picker_cards(cards: list, listing_counts: dict | None = None) -> list[
                 "id":          v.scryfall_id,
                 "name":        v.name,
                 "set":         v.set_name or "",
+                "released_at": (sd.get("released_at") or "")[:4],
                 "img":         img,
                 "img_hd":      img_hd,
                 "img_back":    img_back,

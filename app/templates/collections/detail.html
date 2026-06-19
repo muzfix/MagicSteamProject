@@ -101,14 +101,43 @@
     </div>
 </div>
 
-<!-- ── Variant picker popup ────────────────────────────────────────────────── -->
+<!-- ── Deck / collection stats panel ──────────────────────────────────────── -->
+<div id="deck-stats" class="hidden mt-4 bg-white border border-gray-100 rounded-lg px-4 py-3 text-sm"></div>
+
+<!-- ── Card viewer popup (picker search results) ──────────────────────────── -->
 <div id="variant-popup" class="modal-backdrop hidden fixed inset-0 z-50 bg-black/70 flex items-end sm:items-center justify-center p-0 sm:p-4">
-    <div class="bg-white rounded-t-2xl sm:rounded-xl shadow-xl w-full sm:max-w-md p-5 space-y-3 max-h-[85vh] overflow-y-auto">
-        <div class="flex items-center justify-between">
-            <h3 id="variant-popup-name" class="font-semibold text-sm"></h3>
-            <button onclick="closeVariantPopup()" class="text-gray-400 hover:text-gray-700 text-xl leading-none">&times;</button>
+    <div class="bg-white rounded-t-2xl sm:rounded-xl shadow-xl w-full sm:max-w-2xl max-h-[92vh] overflow-hidden flex flex-col">
+        <!-- Header: prev ← | card name / counter | → next | ✕ -->
+        <div class="flex items-center gap-1 px-3 py-3 border-b border-gray-100 flex-shrink-0">
+            <button id="picker-prev-btn"
+                class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors text-xl font-light"
+                title="Previous card (←)">&#8249;</button>
+            <div class="flex-1 min-w-0 px-1">
+                <div id="variant-popup-name" class="font-semibold text-sm leading-tight truncate"></div>
+                <div id="variant-popup-counter" class="text-[11px] text-gray-400 leading-tight"></div>
+            </div>
+            <button id="picker-next-btn"
+                class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors text-xl font-light"
+                title="Next card (→)">&#8250;</button>
+            <button id="variant-close-btn"
+                class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors ml-1 text-sm">&#x2715;</button>
         </div>
-        <div id="variant-list" class="divide-y divide-gray-100"></div>
+        <!-- Body: HD image (left/top) | variant list (right/bottom) -->
+        <div class="flex flex-col sm:flex-row flex-1 overflow-hidden">
+            <!-- Card image preview -->
+            <div class="sm:w-52 flex-shrink-0 bg-gray-50 flex items-center justify-center p-4
+                        h-44 sm:h-auto border-b sm:border-b-0 sm:border-r border-gray-100">
+                <img id="variant-preview-img" src="" alt=""
+                     class="max-h-36 sm:max-h-full w-auto rounded-lg shadow-md object-contain">
+            </div>
+            <!-- Scrollable variant list -->
+            <div class="flex-1 overflow-y-auto min-h-0">
+                <div class="px-3 pt-2.5 pb-1 border-b border-gray-50">
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Choose Printing</span>
+                </div>
+                <div id="variant-list" class="divide-y divide-gray-50 pb-2"></div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -259,5 +288,5 @@
 
 {% endblock %}
 {% block scripts %}
-<script src="/static/js/collections.js?v=6"></script>
+<script src="/static/js/collections.js?v=7"></script>
 {% endblock %}

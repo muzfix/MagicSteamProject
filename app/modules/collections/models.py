@@ -29,7 +29,7 @@ class CardCategory(str, enum.Enum):
 
 # Max mainboard / sideboard per deck format
 FORMAT_LIMITS = {
-    "commander": {"mainboard": 99, "sideboard": 15, "commander": 1},
+    "commander": {"mainboard": 99, "sideboard": 15, "commander": 2},  # 2 for Partner/Background/Friends-forever
     "brawl":     {"mainboard": 59, "sideboard": 0,  "commander": 1},
     "standard":  {"mainboard": 60, "sideboard": 15},
     "modern":    {"mainboard": 60, "sideboard": 15},
