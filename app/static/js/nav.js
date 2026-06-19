@@ -17,8 +17,8 @@
             isAdmin = payload.role === 'admin';
         } catch (_) {}
 
-        var deskShow = ['nav-my-account'];
-        var mobShow  = ['nav-mob-account'];
+        var deskShow = ['nav-my-account', 'nav-collections', 'nav-my-listings'];
+        var mobShow  = ['nav-mob-account', 'nav-mob-collections', 'nav-mob-listings'];
         if (isAdmin) { deskShow.push('nav-admin'); mobShow.push('nav-mob-admin'); }
 
         var desk = { show: deskShow, hide: ['nav-login', 'nav-register'] };

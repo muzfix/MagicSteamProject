@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}My Collections — MagicSteam{% endblock %}
+{% block content %}
+
+<div class="flex items-center justify-between mb-6">
+    <h1 class="text-xl font-bold">My Collections</h1>
+    <button id="new-collection-btn"
+        class="text-sm border border-gray-900 rounded px-3 py-1.5 bg-gray-900 text-white hover:bg-gray-700 transition-colors">
+        + New
+    </button>
+</div>
+
+<!-- Collection grid -->
+<div id="collections-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+    <div class="col-span-full py-8 text-center text-sm text-gray-400">Loading…</div>
+</div>
+
+<!-- Create modal -->
+<div id="create-modal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-sm p-6 space-y-4">
+        <h3 class="font-semibold">New Collection or Deck</h3>
+
+        <div class="space-y-2">
+            <label class="text-xs text-gray-500 font-semibold uppercase tracking-wide">Type</label>
+            <div class="grid grid-cols-2 gap-2">
+                <button id="type-collection"
+                    class="py-2 text-sm rounded border-2 border-gray-900 bg-gray-900 text-white font-semibold transition-colors">
+                    Collection
+                </button>
+                <button id="type-deck"
+                    class="py-2 text-sm rounded border-2 border-gray-200 text-gray-600 hover:border-gray-400 font-semibold transition-colors">
+                    Deck
+                </button>
+            </div>
+        </div>
+
+        <div>
+            <label class="text-xs text-gray-500">Name</label>
+            <input type="text" id="new-name" maxlength="100" placeholder="My Commander Deck"
+                class="mt-1 w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-gray-600">
+        </div>
+
+        <div id="format-section" class="hidden space-y-1">
+            <label class="text-xs text-gray-500">Format</label>
+            <select id="new-format"
+                class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-gray-600">
+                <option value="commander">Commander / EDH (100 cards)</option>
+                <option value="standard">Standard (60 + 15 sideboard)</option>
+                <option value="modern">Modern (60 + 15 sideboard)</option>
+                <option value="pioneer">Pioneer (60 + 15 sideboard)</option>
+                <option value="legacy">Legacy (60 + 15 sideboard)</option>
+                <option value="vintage">Vintage (60 + 15 sideboard)</option>
+                <option value="pauper">Pauper (60 + 15 sideboard)</option>
+                <option value="brawl">Brawl (60 cards)</option>
+                <option value="custom">Custom (no limit)</option>
+            </select>
+        </div>
+
+        <div id="create-msg" class="hidden text-xs text-red-600"></div>
+
+        <div class="flex gap-2 pt-1">
+            <button id="create-btn"
+                class="flex-1 py-2 bg-gray-900 text-white rounded text-sm font-semibold hover:bg-gray-700 transition-colors">
+                Create
+            </button>
+            <button id="cancel-create-btn"
+                class="flex-1 py-2 border border-gray-300 rounded text-sm hover:bg-gray-50 transition-colors">
+                Cancel
+            </button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/collections.js?v=3" defer></script>
+{% endblock %}

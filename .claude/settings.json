@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-ChildItem *)",
+      "mcp__ccd_session__mark_chapter",
+      "mcp__Claude_in_Chrome__get_page_text",
+      "mcp__visualize__show_widget",
+      "mcp__visualize__read_me"
+    ]
+  }
+}

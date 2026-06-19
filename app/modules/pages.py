@@ -10,6 +10,7 @@ from app.database import get_db
 from app.modules.auth.dependencies import get_current_admin
 from app.modules.auth.models import User, UserActivity
 from app.modules.marketplace import service as marketplace_service
+from app.modules.collections import service as collections_service
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -33,8 +34,11 @@ def register_page(request: Request):
 @router.get("/marketplace", response_class=HTMLResponse)
 def marketplace_page(request: Request, db: Session = Depends(get_db)):
     total, listings = marketplace_service.get_listings_with_cards(db, listing_type="community")
+    btotal, bundles = collections_service.get_all_bundle_listings(db, limit=12)
     return templates.TemplateResponse(request, "marketplace/index.html", {
         "listings": listings,
+        "bundles": bundles,
+        "bundle_total": btotal,
         "mode": "community",
         "total": total,
     })
@@ -45,6 +49,8 @@ def store_page(request: Request, db: Session = Depends(get_db)):
     total, listings = marketplace_service.get_listings_with_cards(db, listing_type="official")
     return templates.TemplateResponse(request, "marketplace/index.html", {
         "listings": listings,
+        "bundles": [],
+        "bundle_total": 0,
         "mode": "official",
         "total": total,
     })
@@ -58,6 +64,39 @@ def sell_page(request: Request):
 @router.get("/account", response_class=HTMLResponse)
 def account_page(request: Request):
     return templates.TemplateResponse(request, "auth/account.html")
+
+
+@router.get("/my-listings", response_class=HTMLResponse)
+def my_listings_page(request: Request):
+    return templates.TemplateResponse(request, "marketplace/my_listings.html")
+
+
+@router.get("/my-orders", response_class=HTMLResponse)
+def my_orders_page(request: Request):
+    return templates.TemplateResponse(request, "marketplace/my_orders.html")
+
+
+@router.get("/checkout/{order_id}", response_class=HTMLResponse)
+def checkout_page(request: Request, order_id: int):
+    return templates.TemplateResponse(request, "marketplace/checkout.html", {"order_id": order_id})
+
+
+@router.get("/u/{username}", response_class=HTMLResponse)
+def user_profile_page(request: Request, username: str, db: Session = Depends(get_db)):
+    profile = collections_service.get_public_profile(db, username)
+    if not profile:
+        return templates.TemplateResponse(request, "404.html", status_code=404)
+    return templates.TemplateResponse(request, "marketplace/user_profile.html", {"profile": profile})
+
+
+@router.get("/my-collections", response_class=HTMLResponse)
+def my_collections_page(request: Request):
+    return templates.TemplateResponse(request, "collections/index.html")
+
+
+@router.get("/collections/{collection_id}", response_class=HTMLResponse)
+def collection_detail_page(request: Request, collection_id: int):
+    return templates.TemplateResponse(request, "collections/detail.html", {"collection_id": collection_id})
 
 
 @router.get("/privacy", response_class=HTMLResponse)

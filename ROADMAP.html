@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MagicSteam — Full Project Roadmap</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f9fafb; color: #111; padding: 24px; font-size: 13px; }
+  h1 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  .subtitle { color: #6b7280; font-size: 12px; margin-bottom: 20px; }
+
+  .legend { display: flex; gap: 16px; margin-bottom: 18px; flex-wrap: wrap; }
+  .leg { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #555; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .dot-done { background: #22c55e; }
+  .dot-partial { background: #f59e0b; }
+  .dot-pending { background: #e5e7eb; border: 1.5px solid #9ca3af; }
+  .dot-future { background: #a78bfa; }
+
+  .tabs { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+  .tab { padding: 5px 12px; border-radius: 20px; cursor: pointer; font-size: 11px; font-weight: 600; border: 1.5px solid transparent; transition: all 0.15s; background: #f3f4f6; color: #555; }
+  .tab.active, .tab:hover { background: #111; color: #fff; }
+
+  .phase-panel { display: none; }
+  .phase-panel.active { display: block; }
+
+  .phase-header { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; }
+  .phase-title { font-size: 15px; font-weight: 700; }
+  .phase-status { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px; }
+  .ps-done    { background: #dcfce7; color: #166534; }
+  .ps-partial { background: #fef3c7; color: #92400e; }
+  .ps-pending { background: #f3f4f6; color: #374151; }
+  .ps-future  { background: #ede9fe; color: #5b21b6; }
+
+  .items { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  @media (max-width: 600px) { .items { grid-template-columns: 1fr; } }
+
+  .item { background: #fff; border: 1.5px solid #e5e7eb; border-radius: 10px; padding: 10px 12px; }
+  .item-header { display: flex; align-items: center; gap: 7px; margin-bottom: 4px; }
+  .item-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .item-name { font-weight: 600; font-size: 12px; }
+  .item-desc { font-size: 11px; color: #6b7280; line-height: 1.4; }
+  .item-tag { display: inline-block; font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 4px; margin-top: 4px; }
+  .tag-api { background: #dbeafe; color: #1e40af; }
+  .tag-ui  { background: #fce7f3; color: #9d174d; }
+  .tag-db  { background: #d1fae5; color: #065f46; }
+  .tag-infra { background: #f3e8ff; color: #6b21a8; }
+
+  .note-box { margin-top: 14px; padding: 10px 14px; border-radius: 10px; border-left: 3px solid; font-size: 11.5px; line-height: 1.5; }
+  .note-green  { background: #f0fdf4; border-color: #22c55e; }
+  .note-amber  { background: #fffbeb; border-color: #f59e0b; }
+  .note-blue   { background: #eff6ff; border-color: #3b82f6; }
+  .note-purple { background: #faf5ff; border-color: #a78bfa; }
+
+  .progress-bar { height: 6px; background: #e5e7eb; border-radius: 3px; margin-top: 6px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 3px; }
+
+  .rec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  @media (max-width: 600px) { .rec-grid { grid-template-columns: 1fr; } }
+  .rec-card { background: #fff; border: 1.5px solid #e5e7eb; border-radius: 10px; padding: 10px 12px; }
+  .rec-title { font-weight: 700; font-size: 12px; margin-bottom: 3px; }
+  .rec-pick  { font-size: 11.5px; color: #166534; font-weight: 600; margin-bottom: 2px; }
+  .rec-why   { font-size: 11px; color: #6b7280; line-height: 1.4; }
+  .rec-avoid { font-size: 10.5px; color: #9a3412; margin-top: 3px; }
+
+  .linux-table { width: 100%; border-collapse: collapse; font-size: 11.5px; margin-top: 6px; }
+  .linux-table th { text-align: left; padding: 6px 8px; background: #f3f4f6; font-weight: 700; }
+  .linux-table td { padding: 6px 8px; border-bottom: 1px solid #e5e7eb; vertical-align: top; }
+  .linux-table tr:last-child td { border-bottom: none; }
+  .chg-easy { color: #166534; font-weight: 600; }
+  .chg-med  { color: #92400e; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<h1>MagicSteam — Full Project Roadmap</h1>
+<p class="subtitle">Oman's local MTG marketplace &nbsp;·&nbsp; Home server → Linux production &nbsp;·&nbsp; Updated June 2026</p>
+
+<div class="legend">
+  <div class="leg"><div class="dot dot-done"></div> Done</div>
+  <div class="leg"><div class="dot dot-partial"></div> Partial / In Progress</div>
+  <div class="leg"><div class="dot dot-pending"></div> Pending</div>
+  <div class="leg"><div class="dot dot-future"></div> Future / Stretch</div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="show('p0',this)">Phase 0 · Foundation</div>
+  <div class="tab" onclick="show('p1',this)">Phase 1 · Catalogue</div>
+  <div class="tab" onclick="show('p2',this)">Phase 2 · Marketplace</div>
+  <div class="tab" onclick="show('p3',this)">Phase 3 · Payments</div>
+  <div class="tab" onclick="show('p4',this)">Phase 4 · Collection</div>
+  <div class="tab" onclick="show('p5',this)">Phase 5 · Social</div>
+  <div class="tab" onclick="show('recs',this)">Integrations</div>
+  <div class="tab" onclick="show('linux',this)">Linux Deploy</div>
+</div>
+
+<!-- PHASE 0 -->
+<div id="p0" class="phase-panel active">
+  <div class="phase-header">
+    <div class="phase-title">Phase 0 — Foundation &amp; Infrastructure</div>
+    <div class="phase-status ps-done">Complete</div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" style="width:100%;background:#22c55e"></div></div><br>
+  <div class="items">
+    <div class="item"><div class="item-header"><div class="item-dot dot-done"></div><div class="item-name">FastAPI application skeleton</div></div><div class="item-desc">Routers, middleware, Jinja2 templates, static files. HTMX + TailwindCSS CDN.</div><span class="item-tag tag-api">API</span></div>
+    <div class="item"><div class="item-header"><div class="item-dot dot-done"></div><div class="item-name">SQLAlchemy + SQLite (dev)</div></div><div class="item-desc">All models: Card, MTGSet, CardTranslation, User, Listing, Order, UserActivity. PostgreSQL-ready config.</div><span class="item-tag tag-db">DB</span></div>
+    <div class="item"><div class="item-header"><div class="item-dot dot-done"></div><div class="item-name">Security middleware</div></div><div class="item-desc">CSP (no unsafe-inline), X-Frame-Options, rate limiting via slowapi, HSTS on HTTPS.</div><span class="item-tag tag-infra">Infra</span></div>
+    <div class="item"><div class="item-header"><div class="item-dot dot-done"></div><div class="item-name">Incremental schema migration</div></div><div class="item-desc">_ensure_schema() runs safe ALTER TABLE + backfills on startup. Alembic pending for production.</div><span class="item-tag tag-db">DB</span></div>
+    <div class="item"><div class="item-header"><div class="item-dot dot-done"></div><div class="item-name">LRU + TTL search cache</div></div><div class="item-desc">In-process cache, 36-query background warm-up on startup. Sub-1ms for cached queries.</div><span class="item-tag tag-infra">Infra</span></div>
+    <div class="item"><div class="item-header"><div class="item-dot dot-done"></div><div class="item-name">Git repo + GitHub</div></div><div class="item-desc">Initialized at D:\MagicSteamProject. Pushed to github.com/muzfix/MagicSteamProject. .gitattributes for LF normalization.</div><span class="item-tag tag-infra">Infra</span></div>
+    <div class="item"><div class="item-header"><div class="item-dot dot-pending"></div><div class="item-name">Alembic migrations</div></div><div class="item-desc">Replace _ensure_schema() with proper versioned migrations. Required before production deployment.</div><span class="item-tag tag-db">DB</span></div>
+    <div class="item"><div class="item-header"><div class="item-dot dot-pending"></div><div class="item-name">Branch protection rules</div></div><div class="item-desc">Protect master on GitHub. Require PR + 1 approval before merge. Prevents colleagues pushing broken code directly.</div><span class="item-tag tag-infra">Infra</span></div>
+  </div>
+  <div class="note-box note-green">Foundation is solid and now version-controlled. The only missing piece before production is replacing the bespoke schema migration with Alembic so DB changes are tracked and reversible on the Linux server.</div>
+</div>
+
+<!-- PHASE 1 -->
+<div id="p1" class="phase-panel">
+  <div class="phase-header">
+    <div class="phase-title">Phase 1 — Card Catalogue &amp; Search</div>
+    <div class="phase-status ps-done">Complete</div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" style="width:95%;background:#22c55e"></div></div><br>
+  <div class="items">
+    <div class="item"><div class="item-header"><div class="item-dot dot-done"></div><div class="item-name">Scryfall bulk sync</div></div><div class="item-desc">115k+ cards with all metadata, images, prices, legalities, keywords. Arabic + 16 language translations.</div><span class="item-tag tag-db">DB</span></div>
+    <div class="item"><div class="item-header"><div class="item-dot dot-done"></div><div class="item-name">NLP search parser</div></div><div class="item-desc">Colors, CMC, rarity, format, oracle synonyms, type synonyms, keyword abilities, stop words. Individual word tokens fix stop-word-gap names (Delver of Secrets).</div><span class="item-tag tag-api">API</span></div>
+    <div class="item"><div class="item-header"><div class="item-dot dot-done"></div><div class="item-name">5-tier search ranking</div></div><div class="item-desc">Exact → starts-with → contains (DFC) → first-word-exact → first-word-starts. DFC "X // Y" names handled at tier 2.</div><span class="item-tag tag-api">API</span></div>
+    <div class="item"><div class="item-header"><div class="item-dot dot-done"></div><div class="item-name">DFC card support</div></div><div class="item-desc">img_back in variant JSON. Flip button in lightbox + sell zoom. F key shortcut. img_uri backfilled from card_faces[0].</div><span class="item-tag tag-ui">UI</span></div>
+    <div class="item"><div class="item-header"><div class="item-dot dot-done"></div><div class="item-name">OMR currency</div></div><div class="item-desc">USD→OMR conversion at query time. Baisa display for sub-OMR prices. fmt_omr Jinja2 filter.</div><span class="item-tag tag-api">API</span></div>
+    <div class="item"><div class="item-header"><div class="item-dot dot-done"></div><div class="item-name">Homepage picker (grouped tiles)</div></div><div class="item-desc">Cards grouped by name. All printings in one tile. Price + version count shown. Rule-of-5 versions list in lightbox.</div><span class="item-tag tag-ui">UI</span></div>
+    <div class="item"><div class="item-header"><div class="item-dot dot-done"></div><div class="item-name">Lightbox with versions list</div></div><div class="item-desc">Rule-of-5 collapse, version row swaps HD image + price, DFC flip, sell buttons hidden on non-sell pages.</div><span class="item-tag tag-ui">UI</span></div>
+    <div class="item"><div class="item-header"><div class="item-dot dot-pending"></div><div class="item-name">Card detail page /cards/:id</div></div><div class="item-desc">Full card stats, rulings, price history, all printings, buy/sell links. Endpoint exists, template missing.</div><span class="item-tag tag-ui">UI</span></div>
+    <div class="item"><div class="item-header"><div class="item-dot dot-pending"></div><div class="item-name">Price history tracking</div></div><div class="item-desc">Weekly price snapshots to show trends. Needs a price_history table + scheduled sync.</div><span class="item-tag tag-db">DB</span></div>
+    <div class="item"><div class="item-header"><div class="item-dot dot-future"></div><div class="item-name">Arabic ability search</div></div><div class="item-desc">Search oracle synonyms in Arabic (قلب، سحب، إزالة…). Pinned MEMORY goal for Oman market inclusivity.</div><span class="item-tag tag-api">API</span></div>
+    <div class="item"><div class="item-header"><div class="item-dot dot-future"></div><div class="item-name">Weekly price sync cron</div></div><div class="item-desc">Scryfall bulk-data download → UPDATE prices only. No full re-import. Runs weekly at low-traffic hours.</div><span class="item-tag tag-infra">Infra</span></div>
+  </div>
+</div>
+
+<!-- PHASE 2 -->
+<div id="p2" class="phase-panel">
+  <div class="phase-header">
+    <div class="phase-title">Phase 2 — Marketplace &amp; Sell Flow</div>
+    <div class="phase-status ps-partial">~65% Done</div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" style="width:65%;background:#f59e0b"></div></div><br>
+  <div class="items">
+    <div class="item"><div class="item-header"><div class="item-dot dot-done"></div><div class="item-name">Auth — register / login</div></div><div class="item-desc">Email + password, JWT (6-month expiry), bcrypt, rate limiting. 401 redirects to login automatically.</div><span class="item-tag tag-api">API</span></div>
+    <div class="item"><div class="item-header"><div class="item-dot dot-done"></div><div class="item-name">Auth — account settings</div></div><div class="item-desc">Username change (1-year lock), password change, guild tag (4-char profanity filter).</div><span class="item-tag tag-api">API</span></div>
+    <div class="item"><div class="item-header"><div class="item-dot dot-done"></div><div class="item-name">Activity tracking + Privacy Policy</div></div><div class="item-desc">Login + visit events logged (IP, country, city, device). Throttled 1/hour. Admin dashboard at /admin/activity. Privacy policy at /privacy. Oman PDPL compliant.</div><span class="item-tag tag-db">DB</span></div>
+    <div class="item"><div class="item-header"><div class="item-dot dot-done"></div><div class="item-name">Sell page — variant picker + zoom</div></div><div class="item-desc">Search → grouped tiles → sell preview with HD zoom, DFC flip, ←→ nav, F key shortcut.</div><span class="item-tag tag-ui">UI</span></div>
+    <div class="item"><div class="item-header"><div class="item-dot dot-done"></div><div class="item-name">Sell cart + listing submit</div></div><div class="item-desc">localStorage cart survives reload. Batch submit to POST /api/marketplace/listings. JWT-gated.</div><span class="item-tag tag-ui">UI</span></div>
+    <div class="item"><div class="item-header"><div class="item-dot dot-done"></div><div class="item-name">Community + Official store pages</div></div><div class="item-desc">Two marketplace views (mode=community / mode=official). Listings with seller, condition, price.</div><span class="item-tag tag-ui">UI</span></div>
+    <div class="item"><div class="item-header"><div class="item-dot dot-partial"></div><div class="item-name">Buy button → checkout</div></div><div class="item-desc">Buy button exists. Order model + create_order endpoint exist. No checkout page yet.</div><span class="item-tag tag-ui">UI</span></div>
+    <div class="item"><div class="item-header"><div class="item-dot dot-pending"></div><div class="item-name">My Listings page /my-listings</div></div><div class="item-desc">Sellers need to view, edit, and deactivate their own active listings.</div><span class="item-tag tag-ui">UI</span></div>
+    <div class="item"><div class="item-header"><div class="item-dot dot-pending"></div><div class="item-name">Order management</div></div><div class="item-desc">Seller marks order shipped. Buyer sees order status. Email notification on state change.</div><span class="item-tag tag-ui">UI</span></div>
+    <div class="item"><div class="item-header"><div class="item-dot dot-pending"></div><div class="item-name">Google social login</div></div><div class="item-desc">One-click login. Use python-social-auth (free, no Auth0). Add google_id column to users table.</div><span class="item-tag tag-api">API</span></div>
+    <div class="item"><div class="item-header"><div class="item-dot dot-pending"></div><div class="item-name">Admin dashboard</div></div><div class="item-desc">Manage listings, users, flag abuse, populate official store inventory. Activity dashboard already done.</div><span class="item-tag tag-ui">UI</span></div>
+    <div class="item"><div class="item-header"><div class="item-dot dot-future"></div><div class="item-name">Seller ratings / reviews</div></div><div class="item-desc">1-5 star after completed order. Shown on profiles and marketplace listings. Trust signal for local trades.</div><span class="item-tag tag-db">DB</span></div>
+    <div class="item"><div class="item-header"><div class="item-dot dot-future"></div><div class="item-name">WhatsApp card scanner</div></div><div class="item-desc">Stub exists (scanner/recognizer.py). POST /api/scanner/identify. Needs Twilio WhatsApp API + Scryfall visual search.</div><span class="item-tag tag-api">API</span></div>
+  </div>
+  <div class="note-box note-amber">The sell-side is complete. The buy-side (checkout page, order status, payment) is the critical missing piece before this becomes a real marketplace vs. a listing board.</div>
+</div>
+
+<!-- PHASE 3 -->
+<div id="p3" class="phase-panel">
+  <div class="phase-header">
+    <div class="phase-title">Phase 3 — Payments &amp; Transactions</div>
+    <div class="phase-status ps-pending">Pending (stubs in place)</div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" style="width:10%;background:#f59e0b"></div></div><br>
+  <div class="items">
+    <div class="item"><div class="item-header"><div class="item-dot dot-done"></div><div class="item-name">Payment router stubs</div></div><div class="item-desc">Tap + Stripe webhook endpoints exist. TAP_SECRET_KEY and STRIPE_SECRET_KEY slots in config.py.</div><span class="item-tag tag-api">API</span></div>
+    <div class="item"><div class="item-header"><div class="item-dot dot-done"></div><div class="item-name">Order model</div></div><div class="item-desc">Order table: buyer, seller, listing, quantity, total, status, payment_ref. All fields ready.</div><span class="item-tag tag-db">DB</span></div>
+    <div class="item"><div class="item-header"><div class="item-dot dot-pending"></div><div class="item-name">Cash on Delivery (quick win)</div></div><div class="item-desc">Zero merchant account needed. "Meet in Person" flow. Lets users complete real trades immediately.</div><span class="item-tag tag-ui">UI</span></div>
+    <div class="item"><div class="item-header"><div class="item-dot dot-pending"></div><div class="item-name">Checkout page /checkout/:order_id</div></div><div class="item-desc">Summary of purchase, payment method selection, total in OMR.</div><span class="item-tag tag-ui">UI</span></div>
+    <div class="item"><div class="item-header"><div class="item-dot dot-pending"></div><div class="item-name">Tap Payments activation</div></div><div class="item-desc">Register at tap.company (~1 week approval). Set TAP_SECRET_KEY in .env. Supports OMR, Mada, KNET, Visa/MC.</div><span class="item-tag tag-api">API</span></div>
+    <div class="item"><div class="item-header"><div class="item-dot dot-pending"></div><div class="item-name">Email notifications</div></div><div class="item-desc">Order placed → seller email. Order shipped → buyer email. Use Resend.com (free, 3k/month).</div><span class="item-tag tag-infra">Infra</span></div>
+    <div class="item"><div class="item-header"><div class="item-dot dot-future"></div><div class="item-name">Stripe (expats + Apple Pay)</div></div><div class="item-desc">International cards, Apple Pay, Samsung Pay. Secondary after Tap. Already stubbed.</div><span class="item-tag tag-api">API</span></div>
+  </div>
+  <div class="note-box note-blue"><strong>Quick win:</strong> Add "Cash on Delivery / Meet in Person" as a free payment method first — zero merchant account required. Lets users complete real trades immediately while waiting for Tap Payments approval.</div>
+</div>
+
+<!-- PHASE 4 -->
+<div id="p4" class="phase-panel">
+  <div class="phase-header">
+    <div class="phase-title">Phase 4 — Collection &amp; Deck Builder</div>
+    <div class="phase-status ps-pending">Not Started (fully feasible)</div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" style="width:0%;background:#a78bfa"></div></div><br>
+  <div class="items">
+    <div class="item"><div class="item-header"><div class="item-dot dot-pending"></div><div class="item-name">Deck schema</div></div><div class="item-desc">decks(id, user_id, name, format, description) + deck_cards(deck_id, scryfall_id, qty, category). ~2 hrs to build.</div><span class="item-tag tag-db">DB</span></div>
+    <div class="item"><div class="item-header"><div class="item-dot dot-pending"></div><div class="item-name">Deck builder page /decks</div></div><div class="item-desc">Create/edit/delete decks. Same card search as homepage. Add cards with quantity. Up to 35 decks per user.</div><span class="item-tag tag-ui">UI</span></div>
+    <div class="item"><div class="item-header"><div class="item-dot dot-pending"></div><div class="item-name">Deck price total</div></div><div class="item-desc">Sum prices across all deck_cards via one JOIN. Show total in OMR instantly. Key differentiator vs Manabox.</div><span class="item-tag tag-api">API</span></div>
+    <div class="item"><div class="item-header"><div class="item-dot dot-pending"></div><div class="item-name">Text list import</div></div><div class="item-desc">Paste "4x Lightning Bolt" format. Handles Moxfield / MTGO / Arena exports. Parse + bulk-add.</div><span class="item-tag tag-api">API</span></div>
+    <div class="item"><div class="item-header"><div class="item-dot dot-pending"></div><div class="item-name">Collection tracker</div></div><div class="item-desc">Cards I own — quantity tracked. Can mark cards as in specific decks. Separate from deck lists.</div><span class="item-tag tag-ui">UI</span></div>
+    <div class="item"><div class="item-header"><div class="item-dot dot-pending"></div><div class="item-name">Deck share / public URL</div></div><div class="item-desc">/decks/:id public view. Others see deck + OMR prices + can buy missing cards from marketplace.</div><span class="item-tag tag-ui">UI</span></div>
+    <div class="item"><div class="item-header"><div class="item-dot dot-future"></div><div class="item-name">Want list / buylist</div></div><div class="item-desc">Cards user wants. Auto-alert when a matching listing is posted. Direct Manabox competitor feature.</div><span class="item-tag tag-ui">UI</span></div>
+    <div class="item"><div class="item-header"><div class="item-dot dot-future"></div><div class="item-name">Card trade matching</div></div><div class="item-desc">User A has X wants Y, User B has Y wants X — system matches and proposes a trade.</div><span class="item-tag tag-infra">Infra</span></div>
+  </div>
+  <div class="note-box note-purple"><strong>Feasibility:</strong> 300 users × 35 decks × 100 cards = 1.05M rows. SQLite handles this trivially (&lt;5MB, sub-ms queries). Deck price totals = one JOIN query. This is a 2–3 day build and the biggest competitive differentiator vs Manabox — OMR prices on every card in every deck.</div>
+</div>
+
+<!-- PHASE 5 -->
+<div id="p5" class="phase-panel">
+  <div class="phase-header">
+    <div class="phase-title">Phase 5 — Community &amp; Social</div>
+    <div class="phase-status ps-future">Future</div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" style="width:5%;background:#a78bfa"></div></div><br>
+  <div class="items">
+    <div class="item"><div class="item-header"><div class="item-dot dot-done"></div><div class="item-name">Guild tags</div></div><div class="item-desc">4-char tag on user profiles. Shows in marketplace listings. Profanity filter active.</div><span class="item-tag tag-ui">UI</span></div>
+    <div class="item"><div class="item-header"><div class="item-dot dot-pending"></div><div class="item-name">User profile pages /u/:username</div></div><div class="item-desc">Public profile: active listings, shared decks, guild, trade history, rating.</div><span class="item-tag tag-ui">UI</span></div>
+    <div class="item"><div class="item-header"><div class="item-dot dot-pending"></div><div class="item-name">Seller ratings</div></div><div class="item-desc">1-5 star after completed order. Average shown on profile + marketplace listings.</div><span class="item-tag tag-db">DB</span></div>
+    <div class="item"><div class="item-header"><div class="item-dot dot-future"></div><div class="item-name">Guilds / teams</div></div><div class="item-desc">Groups of players. Shared decks within guild. Guild leaderboard by collection value.</div><span class="item-tag tag-db">DB</span></div>
+    <div class="item"><div class="item-header"><div class="item-dot dot-future"></div><div class="item-name">Tournament listings</div></div><div class="item-desc">Announce local events. Players mark attendance. Format/commander support.</div><span class="item-tag tag-ui">UI</span></div>
+    <div class="item"><div class="item-header"><div class="item-dot dot-future"></div><div class="item-name">WhatsApp bot</div></div><div class="item-desc">Send card image → bot identifies → returns price + active listings. Twilio WhatsApp API.</div><span class="item-tag tag-api">API</span></div>
+    <div class="item"><div class="item-header"><div class="item-dot dot-future"></div><div class="item-name">Android app</div></div><div class="item-desc">Thin Flutter/React Native wrapper around the FastAPI. Camera scan → identify card.</div><span class="item-tag tag-infra">Infra</span></div>
+  </div>
+</div>
+
+<!-- INTEGRATIONS -->
+<div id="recs" class="phase-panel">
+  <div class="phase-header">
+    <div class="phase-title">Integration Recommendations</div>
+    <div class="phase-status ps-partial">Decisions needed</div>
+  </div><br>
+  <div class="rec-grid">
+    <div class="rec-card"><div class="rec-title">🔐 Auth — Social Login</div><div class="rec-pick">✓ Use: python-social-auth + Google OAuth2</div><div class="rec-why">Free, self-hosted, no monthly fee. Add google-oauth2 backend to auth router. One redirect URL on Google Cloud Console. Stores google_id alongside email/password — users can log in either way.</div><div class="rec-avoid">✗ Skip Auth0: $23/month minimum, unnecessary for 300 local users.</div></div>
+    <div class="rec-card"><div class="rec-title">💳 Payments — Primary</div><div class="rec-pick">✓ Use: Tap Payments (tap.company)</div><div class="rec-why">Oman-based, supports OMR, accepts Mada, KNET, Visa/MC local cards. Webhook stub already in payments/router.py. Register at tap.company. Approval ~1 week.</div><div class="rec-avoid">✗ Not Stripe as primary: USD-first, currency conversion fees hurt OMR feel.</div></div>
+    <div class="rec-card"><div class="rec-title">💳 Payments — Secondary</div><div class="rec-pick">✓ Use: Stripe (for expats + Apple Pay)</div><div class="rec-why">Large expat community in Oman uses international cards. Stripe powers Apple Pay + Google Pay. Already stubbed. Activate both — Tap for locals, Stripe for expats.</div><div class="rec-avoid">✗ Don't skip COD: "Meet in Person" is how most Oman MTG trades happen. Add first.</div></div>
+    <div class="rec-card"><div class="rec-title">📧 Email</div><div class="rec-pick">✓ Use: Resend.com</div><div class="rec-why">3,000 emails/month free. Simple REST API. Professional transactional email from your domain. Order confirmations, price alerts, account verification.</div><div class="rec-avoid">✗ Skip SendGrid / Mailgun: paid tiers needed sooner, more complex setup.</div></div>
+    <div class="rec-card"><div class="rec-title">📱 WhatsApp Scanner</div><div class="rec-pick">✓ Use: Twilio WhatsApp Business API</div><div class="rec-why">Scanner endpoint already exists (POST /api/scanner/identify). Twilio receives image, forwards to your API, sends price response back. Sandbox free for testing. ~$0.005/message production.</div><div class="rec-avoid">Alternative backend: Scryfall visual search already does card image matching.</div></div>
+    <div class="rec-card"><div class="rec-title">🗺️ Deck Import</div><div class="rec-pick">✓ Use: Plain text parser (no external API)</div><div class="rec-why">Moxfield, Manabox, MTGO, Arena all export "4x Lightning Bolt (M10)" format. Parse with regex, look up by name in cards table. Free, instant, covers every major platform.</div><div class="rec-avoid">No need for Moxfield API — the text export format is standard.</div></div>
+    <div class="rec-card"><div class="rec-title">🔄 Price Sync</div><div class="rec-pick">✓ Use: Scryfall bulk-data weekly cron</div><div class="rec-why">Scryfall free daily bulk JSON (~280MB compressed). Run weekly: download → UPDATE cards SET prices=... No API key needed. Already have the Scryfall client module.</div><div class="rec-avoid">Just add a cron / Windows scheduled task to trigger the sync script.</div></div>
+    <div class="rec-card"><div class="rec-title">🏗️ Production DB</div><div class="rec-pick">✓ Use: PostgreSQL 16</div><div class="rec-why">config.py already has DATABASE_URL pointing to PostgreSQL. SQLite stays for local dev. PG gives concurrent writes, GIN indexes for faster JSON search, pg_trgm for fuzzy name matching.</div><div class="rec-avoid">SQLite will lock under concurrent writes in production.</div></div>
+  </div>
+</div>
+
+<!-- LINUX DEPLOY -->
+<div id="linux" class="phase-panel">
+  <div class="phase-header">
+    <div class="phase-title">Linux Production Deployment</div>
+    <div class="phase-status ps-future">When ready to go live</div>
+  </div>
+  <div class="note-box note-blue" style="margin-bottom:14px">The app is ~85% Linux-ready today. config.py reads .env, DATABASE_URL is PG-formatted, no Windows-only libraries. Most changes are infrastructure config, not code rewrites.</div>
+  <table class="linux-table">
+    <tr><th>Area</th><th>Change Required</th><th>Effort</th></tr>
+    <tr><td><strong>Database</strong></td><td>Switch DATABASE_URL in .env from sqlite to postgresql://user:pass@localhost/mtg. Run Alembic migrations. One-time data export from SQLite → PG using pgloader.</td><td class="chg-med">Medium</td></tr>
+    <tr><td><strong>Server</strong></td><td>Replace uvicorn --reload with: gunicorn -w 4 -k uvicorn.workers.UvicornWorker app.main:app — 4 workers handles 50-300 users easily.</td><td class="chg-easy">Easy</td></tr>
+    <tr><td><strong>Reverse proxy</strong></td><td>Nginx in front of gunicorn. Handles TLS (Let's Encrypt via certbot), gzip, static file serving. Config already exists at nginx.conf in repo.</td><td class="chg-easy">Easy</td></tr>
+    <tr><td><strong>Process manager</strong></td><td>systemd service file for gunicorn. Auto-restart on crash, starts on boot. 10-line config. Docker Compose alternative also in repo (docker-compose.yml).</td><td class="chg-easy">Easy</td></tr>
+    <tr><td><strong>File paths</strong></td><td>All paths use forward slashes already (FastAPI normalizes). The GeoLite2 .mmdb path in activity.py uses os.path.normpath — works on both OS.</td><td class="chg-easy">None needed</td></tr>
+    <tr><td><strong>Environment</strong></td><td>Copy .env to Linux. Set SECRET_KEY to a real 32-char random key. Set ENVIRONMENT=production. Add TAP_SECRET_KEY, STRIPE_SECRET_KEY when ready.</td><td class="chg-easy">Easy</td></tr>
+    <tr><td><strong>Static files</strong></td><td>Let Nginx serve /static/ directly (faster than FastAPI StaticFiles). nginx.conf: location /static/ { root /opt/magicsteam/app; }</td><td class="chg-easy">Easy</td></tr>
+    <tr><td><strong>Alembic</strong></td><td>Add before going live. alembic init, point to DATABASE_URL, auto-generate from current models. Replaces _ensure_schema(). Required for safe PG deployments.</td><td class="chg-med">Medium</td></tr>
+    <tr><td><strong>Tailwind CSS</strong></td><td>Optional: replace CDN Play CDN with a build step (npm run build → tailwind.min.css). Faster loads, works offline. Not required — CDN works fine for &lt;300 users.</td><td class="chg-med">Optional</td></tr>
+    <tr><td><strong>HTTPS / TLS</strong></td><td>Certbot + Let's Encrypt on Nginx. Free, auto-renews. HSTS middleware in main.py already activates when x-forwarded-proto=https header is present from Nginx.</td><td class="chg-easy">Easy</td></tr>
+    <tr><td><strong>Windows-only deps</strong></td><td>None. MagicSteam has no Windows-only dependencies. requirements.txt is clean for Linux.</td><td class="chg-easy">Nothing to do</td></tr>
+  </table>
+  <div class="note-box note-green" style="margin-top:14px"><strong>Target Linux stack:</strong> Ubuntu 24 LTS → Python 3.12 venv → Gunicorn + Uvicorn workers → Nginx → PostgreSQL 16 → Certbot/Let's Encrypt.<br><strong>Estimated deployment time on a fresh VPS: ~4 hours.</strong> No code rewrites needed — infrastructure config only.</div>
+</div>
+
+<script>
+function show(id, tab) {
+  document.querySelectorAll('.phase-panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+  document.getElementById(id).classList.add('active');
+  tab.classList.add('active');
+}
+</script>
+
+</body>
+</html>

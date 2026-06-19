@@ -26,6 +26,12 @@ class OrderStatus(str, enum.Enum):
     cancelled = "cancelled"
 
 
+class PaymentMethod(str, enum.Enum):
+    cod = "cod"
+    tap = "tap"
+    stripe = "stripe"
+
+
 class Listing(Base):
     __tablename__ = "listings"
 
@@ -47,9 +53,12 @@ class Order(Base):
     id = Column(Integer, primary_key=True)
     buyer_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     seller_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    listing_id = Column(Integer, ForeignKey("listings.id"), nullable=False)
+    listing_id = Column(Integer, ForeignKey("listings.id"), nullable=True)
+    bundle_listing_id = Column(Integer, ForeignKey("bundle_listings.id"), nullable=True)
     quantity = Column(Integer, default=1)
     total_price = Column(Float, nullable=False)
     status = Column(Enum(OrderStatus), default=OrderStatus.pending)
+    payment_method = Column(String(20), default="cod")
+    pickup_location = Column(String(200), nullable=True)
     payment_ref = Column(String)
     created_at = Column(DateTime(timezone=True), server_default=func.now())

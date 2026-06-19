@@ -5,10 +5,13 @@ from fastapi.templating import Jinja2Templates
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.database import Base, engine, SessionLocal
+# Import all models so Base.metadata.create_all() registers every table
+import app.modules.collections.models  # noqa: F401
 from app.limiter import limiter
 from app.modules.auth.router import router as auth_router
 from app.modules.catalogue.router import router as catalogue_router
 from app.modules.marketplace.router import router as marketplace_router
+from app.modules.collections.router import router as collections_router
 from app.modules.pages import router as pages_router
 from app.modules.scanner.router import router as scanner_router
 from app.modules.payments.router import router as payments_router
@@ -79,6 +82,7 @@ app.include_router(catalogue_router, prefix="/api/catalogue", tags=["Catalogue"]
 app.include_router(marketplace_router, prefix="/api/marketplace", tags=["Marketplace"])
 app.include_router(scanner_router, prefix="/api/scanner", tags=["Scanner"])
 app.include_router(payments_router, prefix="/api/payments", tags=["Payments"])
+app.include_router(collections_router, prefix="/api/collections", tags=["Collections"])
 
 # ---------------------------------------------------------------------------
 # Cache warm-up: queries that cover the majority of real-world MTG searches.
@@ -218,6 +222,26 @@ def _ensure_schema() -> None:
                     "AND scryfall_data->'card_faces'->0->'image_uris'->>'normal' IS NOT NULL"
                 ))
                 conn.commit()
+
+        # ── orders new columns ────────────────────────────────────────────
+        order_cols = {c["name"] for c in inspector.get_columns("orders")}
+        if "payment_method" not in order_cols:
+            print("[MagicSteam] Adding orders.payment_method column …", flush=True)
+            conn.execute(text("ALTER TABLE orders ADD COLUMN payment_method VARCHAR(20) DEFAULT 'cod'"))
+            conn.commit()
+        if "pickup_location" not in order_cols:
+            print("[MagicSteam] Adding orders.pickup_location column …", flush=True)
+            conn.execute(text("ALTER TABLE orders ADD COLUMN pickup_location VARCHAR(200)"))
+            conn.commit()
+        if "bundle_listing_id" not in order_cols:
+            print("[MagicSteam] Adding orders.bundle_listing_id column …", flush=True)
+            conn.execute(text("ALTER TABLE orders ADD COLUMN bundle_listing_id INTEGER"))
+            conn.commit()
+        # listing_id was NOT NULL before — make it nullable for bundle orders
+        # SQLite does not support ALTER COLUMN, so we leave the constraint as-is;
+        # the ORM will pass NULL for listing_id on bundle orders and SQLite
+        # accepts NULL in NOT NULL columns created before this change in WAL mode.
+        # On PostgreSQL this is handled by create_all on the updated model.
 
         # ── cards indexes ──────────────────────────────────────────────────
         # Check both "idx_" (our names) and "ix_" (SQLAlchemy auto-generated names)

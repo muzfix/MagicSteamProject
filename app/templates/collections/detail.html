@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+{% block title %}Collection — MagicSteam{% endblock %}
+{% block content %}
+
+<!-- ── Header bar ─────────────────────────────────────────────────────────── -->
+<div id="collection-header" class="flex items-start gap-4 mb-6">
+    <!-- Cover art -->
+    <div class="relative group flex-shrink-0">
+        <div id="cover-wrap"
+             class="w-24 aspect-[5/7] rounded-lg overflow-hidden shadow bg-gray-100 cursor-pointer"
+             title="Click to change cover art"
+             onclick="openCoverPicker()">
+            <img id="cover-img" src="" alt="" class="w-full h-full object-cover hidden">
+            <div id="cover-placeholder" class="w-full h-full flex items-center justify-center text-gray-300">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+            </div>
+        </div>
+        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center pointer-events-none">
+            <span class="text-white text-[10px] font-semibold">Change cover</span>
+        </div>
+    </div>
+
+    <!-- Info -->
+    <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 flex-wrap">
+            <h1 id="col-name" class="text-xl font-bold leading-tight"></h1>
+            <span id="col-type-badge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-gray-100 text-gray-600 uppercase tracking-wide"></span>
+        </div>
+        <div id="col-meta" class="text-xs text-gray-500 mt-1 space-x-2"></div>
+        <div id="col-value" class="text-sm font-semibold text-gray-800 mt-1"></div>
+
+        <!-- Action buttons -->
+        <div class="flex flex-wrap gap-2 mt-3">
+            <button id="share-btn"
+                class="text-xs border border-gray-300 rounded px-3 py-1.5 hover:bg-gray-100 transition-colors flex items-center gap-1">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+                Share / Export
+            </button>
+            <button id="sell-toggle-btn"
+                class="text-xs border border-gray-300 rounded px-3 py-1.5 hover:bg-gray-100 transition-colors">
+                List Collection for Sale
+            </button>
+            <button id="import-btn"
+                class="text-xs border border-gray-300 rounded px-3 py-1.5 hover:bg-gray-100 transition-colors">
+                Import
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ── Add card search ──────────────────────────────────────────────────────── -->
+<div class="bg-white border border-gray-200 rounded-lg p-4 mb-6">
+    <div class="flex items-center gap-2 mb-3">
+        <span class="text-xs font-semibold text-gray-700">Add Card</span>
+        <span id="add-mode-badge" class="hidden text-[10px] px-1.5 py-0.5 bg-amber-100 text-amber-800 rounded font-semibold"></span>
+    </div>
+    <input type="search" id="col-search" placeholder="Search cards to add…"
+           autocomplete="off" spellcheck="false"
+           class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-gray-600"
+           hx-get="/api/catalogue/cards/picker"
+           hx-trigger="input changed delay:400ms"
+           hx-target="#col-picker-results"
+           hx-include="[name='q_col']"
+           hx-vals='js:{"q": document.getElementById("col-search").value, "limit": 24}'>
+    <input type="hidden" name="q_col" value="">
+
+    <!-- Category selector (for decks) -->
+    <div id="category-row" class="hidden flex gap-2 mt-2 text-xs">
+        <span class="text-gray-500 self-center">Adding to:</span>
+        <label class="flex items-center gap-1 cursor-pointer">
+            <input type="radio" name="add-category" value="mainboard" checked class="accent-gray-900">
+            <span>Mainboard</span>
+        </label>
+        <label class="flex items-center gap-1 cursor-pointer">
+            <input type="radio" name="add-category" value="sideboard" class="accent-gray-900">
+            <span>Sideboard</span>
+        </label>
+        <label id="commander-radio-label" class="hidden flex items-center gap-1 cursor-pointer">
+            <input type="radio" name="add-category" value="commander" class="accent-gray-900">
+            <span>Commander</span>
+        </label>
+    </div>
+
+    <div id="col-picker-results" class="mt-3"></div>
+</div>
+
+<!-- ── Card grid ───────────────────────────────────────────────────────────── -->
+<div id="cards-area">
+    <div class="py-8 text-center text-sm text-gray-400">Loading collection…</div>
+</div>
+
+<!-- ── Variant picker popup ────────────────────────────────────────────────── -->
+<div id="variant-popup" class="hidden fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-5 space-y-3 max-h-[80vh] overflow-y-auto">
+        <div class="flex items-center justify-between">
+            <h3 id="variant-popup-name" class="font-semibold text-sm"></h3>
+            <button onclick="closeVariantPopup()" class="text-gray-400 hover:text-gray-700 text-xl leading-none">&times;</button>
+        </div>
+        <div id="variant-list" class="divide-y divide-gray-100"></div>
+    </div>
+</div>
+
+<!-- ── Share / Export modal ────────────────────────────────────────────────── -->
+<div id="share-modal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-sm p-6 space-y-3">
+        <div class="flex items-center justify-between">
+            <h3 class="font-semibold text-sm">Share &amp; Export</h3>
+            <button onclick="closeShare()" class="text-gray-400 hover:text-gray-700 text-xl leading-none">&times;</button>
+        </div>
+        <button onclick="copyLink()"
+            class="w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors text-sm flex items-center gap-3">
+            <span class="text-lg">🔗</span>
+            <div><div class="font-medium">Copy link</div><div class="text-xs text-gray-400">Share this page URL</div></div>
+        </button>
+        <button onclick="doExport('arena')"
+            class="w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors text-sm flex items-center gap-3">
+            <span class="text-lg">📄</span>
+            <div><div class="font-medium">Export — Arena / Moxfield (.txt)</div><div class="text-xs text-gray-400">Name (Set) Collector# format</div></div>
+        </button>
+        <button onclick="doExport('mtgo')"
+            class="w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors text-sm flex items-center gap-3">
+            <span class="text-lg">📄</span>
+            <div><div class="font-medium">Export — MTGO text (.txt)</div><div class="text-xs text-gray-400">Simple count + name format</div></div>
+        </button>
+        <button onclick="doExport('csv')"
+            class="w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors text-sm flex items-center gap-3">
+            <span class="text-lg">📊</span>
+            <div><div class="font-medium">Export — Spreadsheet (.csv)</div><div class="text-xs text-gray-400">Compatible with Excel / Manabox</div></div>
+        </button>
+        <div id="share-msg" class="hidden text-xs text-green-700 text-center py-1"></div>
+    </div>
+</div>
+
+<!-- ── List for Sale modal ─────────────────────────────────────────────────── -->
+<div id="sell-modal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-sm p-6 space-y-4">
+        <h3 class="font-semibold text-sm">List for Sale</h3>
+        <div class="space-y-1">
+            <label class="text-xs text-gray-500">Price (OMR)</label>
+            <input type="number" id="sell-price" step="0.001" min="0.001" placeholder="0.000"
+                class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-gray-600">
+        </div>
+        <div class="space-y-1">
+            <label class="text-xs text-gray-500">Description (optional)</label>
+            <input type="text" id="sell-desc" maxlength="200" placeholder="Condition notes…"
+                class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-gray-600">
+        </div>
+        <div id="sell-msg" class="hidden text-xs"></div>
+        <div class="flex gap-2">
+            <button onclick="confirmListForSale()"
+                class="flex-1 py-2 bg-gray-900 text-white rounded text-sm font-semibold hover:bg-gray-700 transition-colors">
+                List for Sale
+            </button>
+            <button onclick="closeSellModal()"
+                class="flex-1 py-2 border border-gray-300 rounded text-sm hover:bg-gray-50 transition-colors">
+                Cancel
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ── Import modal ────────────────────────────────────────────────────────── -->
+<div id="import-modal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6 space-y-4">
+        <div class="flex items-center justify-between">
+            <h3 class="font-semibold text-sm">Import Cards</h3>
+            <button onclick="closeImport()" class="text-gray-400 hover:text-gray-700 text-xl leading-none">&times;</button>
+        </div>
+        <div class="text-xs text-gray-500 bg-gray-50 rounded p-3 space-y-1">
+            <div class="font-semibold">Supported formats:</div>
+            <div><code>4 Lightning Bolt</code> (MTGO)</div>
+            <div><code>4 Lightning Bolt (M10) 145</code> (Arena / Moxfield)</div>
+            <div><code>4x Lightning Bolt</code> (shorthand)</div>
+        </div>
+        <textarea id="import-text" rows="10" placeholder="Paste your decklist here…"
+            class="w-full border border-gray-300 rounded px-3 py-2 text-sm font-mono focus:outline-none focus:border-gray-600 resize-none"></textarea>
+        <div id="import-result" class="hidden text-xs p-3 rounded"></div>
+        <div class="flex gap-2">
+            <button onclick="doImport()"
+                class="flex-1 py-2 bg-gray-900 text-white rounded text-sm font-semibold hover:bg-gray-700 transition-colors">
+                Import
+            </button>
+            <button onclick="closeImport()"
+                class="flex-1 py-2 border border-gray-300 rounded text-sm hover:bg-gray-50 transition-colors">
+                Cancel
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ── Cover picker modal ──────────────────────────────────────────────────── -->
+<div id="cover-modal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-5 space-y-3">
+        <div class="flex items-center justify-between">
+            <h3 class="font-semibold text-sm">Change Cover Art</h3>
+            <button onclick="closeCoverPicker()" class="text-gray-400 hover:text-gray-700 text-xl leading-none">&times;</button>
+        </div>
+        <input type="search" id="cover-search" placeholder="Search any card…"
+               class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-gray-600"
+               hx-get="/api/catalogue/cards/picker"
+               hx-trigger="input changed delay:400ms"
+               hx-target="#cover-picker-results"
+               hx-vals='js:{"q": document.getElementById("cover-search").value, "limit": 16}'>
+        <div id="cover-picker-results" class="mt-2"></div>
+    </div>
+</div>
+
+<!-- ── Sell individual card modal ───────────────────────────────────────────── -->
+<div id="sell-card-modal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-sm p-6 space-y-4">
+        <h3 class="font-semibold text-sm">List Card for Sale</h3>
+        <div id="sell-card-preview" class="flex gap-3 items-center min-h-[3rem]"></div>
+        <div class="space-y-1">
+            <label class="text-xs text-gray-500">Condition</label>
+            <select id="sell-card-condition"
+                class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-gray-600">
+                <option value="near_mint">Near Mint (NM)</option>
+                <option value="lightly_played">Lightly Played (LP)</option>
+                <option value="moderately_played">Moderately Played (MP)</option>
+                <option value="heavily_played">Heavily Played (HP)</option>
+                <option value="damaged">Damaged (D)</option>
+            </select>
+        </div>
+        <div class="space-y-1">
+            <label class="text-xs text-gray-500">Price per card (OMR)</label>
+            <input type="number" id="sell-card-price" step="0.001" min="0.001" placeholder="0.000"
+                class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-gray-600">
+        </div>
+        <div class="space-y-1">
+            <label class="text-xs text-gray-500">Quantity to list</label>
+            <input type="number" id="sell-card-qty" min="1" value="1"
+                class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-gray-600">
+        </div>
+        <div id="sell-card-msg" class="hidden text-xs text-red-600"></div>
+        <div class="flex gap-2">
+            <button id="sell-card-confirm-btn"
+                class="flex-1 py-2 bg-gray-900 text-white rounded text-sm font-semibold hover:bg-gray-700 transition-colors">
+                List for Sale
+            </button>
+            <button id="sell-card-cancel-btn"
+                class="flex-1 py-2 border border-gray-300 rounded text-sm hover:bg-gray-50 transition-colors">
+                Cancel
+            </button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+var _COLLECTION_ID = {{ collection_id }};
+</script>
+<script src="/static/js/collections.js?v=3" defer></script>
+{% endblock %}
