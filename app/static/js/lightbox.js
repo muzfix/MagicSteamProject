@@ -167,6 +167,41 @@
         });
     }
 
+    // ── Load-more button (browse + picker) ────────────────────────────────────
+    // Replaces HTMX outerHTML swap (multi-root swap is fragile in HTMX 1.9).
+    // Buttons use data-load-more="<url>" and data-target="<selector>".
+    function _initLoadMore() {
+        document.addEventListener('click', function (e) {
+            var btn = e.target.closest('[data-load-more]');
+            if (!btn || btn.disabled) return;
+            var url = btn.getAttribute('data-load-more');
+            var targetSel = btn.getAttribute('data-target');
+            var target = targetSel ? document.querySelector(targetSel) : btn.parentElement;
+            if (!url || !target) return;
+
+            var orig = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = 'Loading…';
+
+            fetch(url)
+                .then(function (r) {
+                    if (!r.ok) throw new Error(r.status);
+                    return r.text();
+                })
+                .then(function (html) {
+                    var temp = document.createElement('div');
+                    temp.innerHTML = html;
+                    btn.remove();
+                    while (temp.firstChild) { target.appendChild(temp.firstChild); }
+                    _hideSellButtons();
+                })
+                .catch(function () {
+                    btn.textContent = orig;
+                    btn.disabled = false;
+                });
+        });
+    }
+
     // ── Delegations ───────────────────────────────────────────────────────────
     document.addEventListener('click', function (e) {
         // Clicks inside the lightbox are handled by lb / lbInner direct listeners
@@ -219,6 +254,7 @@
         _hideSellButtons();
     }
 
+    _initLoadMore();
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', _initControls);
     } else {

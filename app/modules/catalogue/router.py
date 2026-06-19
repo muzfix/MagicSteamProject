@@ -256,6 +256,18 @@ def card_picker_htmx(
     _, cards = service.search_cards(db, name, limit=PICKER_FETCH, offset=0)
     lc = _get_listing_counts(db, [c.id for c in cards])
     all_groups = group_picker_cards(cards, lc)
+
+    # When the query targets land cards (type:land / basic), pin basic lands first
+    # so Forest/Island/etc. always appear before named lands like Wasteland.
+    is_land_search = "Land" in parsed.type_tokens or "Basic Land" in parsed.type_tokens
+    if is_land_search and all_groups:
+        def _is_basic(g):
+            tl = g["rep"].type_line or ""
+            return "Basic" in tl and "Land" in tl
+        basic = [g for g in all_groups if _is_basic(g)]
+        rest  = [g for g in all_groups if not _is_basic(g)]
+        all_groups = basic + rest
+
     total_groups = len(all_groups)
     page_groups = all_groups[offset : offset + PICKER_LIMIT]
 

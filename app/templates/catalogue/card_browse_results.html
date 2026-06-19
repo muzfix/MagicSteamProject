@@ -44,10 +44,9 @@
 {% endfor %}
 {% if has_more %}
 <button
-    class="col-span-full mt-4 mx-auto block px-8 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-500 transition-colors"
-    hx-get="/api/catalogue/cards/browse?q={{ q_enc }}&offset={{ next_offset }}"
-    hx-target="this"
-    hx-swap="outerHTML">
+    class="col-span-full mt-4 mx-auto block px-8 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-500 transition-colors disabled:opacity-50"
+    data-load-more="/api/catalogue/cards/browse?q={{ q_enc }}&offset={{ next_offset }}"
+    data-target="#results">
     Load {{ remaining }} more cards
 </button>
 {% endif %}

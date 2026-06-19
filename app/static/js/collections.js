@@ -318,6 +318,24 @@
         }
     }
 
+    // Group same-named land cards into a single stacked tile.
+    // Non-lands and uniquely-named lands pass through unchanged.
+    function _mergeByName(cards) {
+        var groups = {}, order = [];
+        cards.forEach(function (c) {
+            var isLand = (c.type_line || '').indexOf('Land') >= 0;
+            var key = isLand ? ('L:' + c.name) : ('S:' + c.id);
+            if (!groups[key]) { groups[key] = []; order.push(key); }
+            groups[key].push(c);
+        });
+        return order.map(function (key) {
+            var grp = groups[key];
+            if (grp.length === 1) return grp[0];
+            var totalQty = grp.reduce(function (s, c) { return s + c.quantity; }, 0);
+            return Object.assign({}, grp[0], { quantity: totalQty, _artCount: grp.length });
+        });
+    }
+
     function renderCards(col) {
         var area = document.getElementById('cards-area');
         if (!area) return;
@@ -332,16 +350,17 @@
             var catLabels = { commander: 'Commander', mainboard: 'Mainboard', sideboard: 'Sideboard' };
             ['commander', 'mainboard', 'sideboard'].forEach(function (cat) {
                 if (!cats[cat].length) return;
-                var total = cats[cat].reduce(function (s, c) { return s + c.quantity; }, 0);
+                var merged = _mergeByName(cats[cat]);
+                var total = merged.reduce(function (s, c) { return s + c.quantity; }, 0);
                 html += '<div class="mb-8"><h3 class="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-3">' +
                     catLabels[cat] + ' (' + total + ')</h3>' +
                     '<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">' +
-                    cats[cat].map(cardTileHtml).join('') + '</div></div>';
+                    merged.map(cardTileHtml).join('') + '</div></div>';
             });
             area.innerHTML = html;
         } else {
             area.innerHTML = '<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">' +
-                col.cards.map(cardTileHtml).join('') + '</div>';
+                _mergeByName(col.cards).map(cardTileHtml).join('') + '</div>';
         }
         area.querySelectorAll('.col-remove-btn').forEach(function (btn) {
             btn.addEventListener('click', function (e) { e.stopPropagation(); removeCard(parseInt(btn.dataset.ccid)); });
@@ -365,19 +384,28 @@
     }
 
     function cardTileHtml(c) {
+        var isLandscape = c.layout === 'planar' || c.layout === 'scheme' || c.layout === 'art_series' || c.layout === 'vanguard';
+        var imgClass = isLandscape ? 'object-contain' : 'object-cover';
         var setLine = _esc(c.set_name || '') + (c.released_at ? ' (' + _esc(c.released_at) + ')' : '');
-        return '<div class="group relative bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow border border-gray-100" id="cc-' + c.id + '">' +
+        var isStack = c._artCount && c._artCount > 1;
+        // Layered shadow gives stacked-cards effect for same-name land piles
+        var stackStyle = isStack ? ' style="box-shadow:4px 4px 0 #d1d5db,8px 8px 0 #e5e7eb;"' : '';
+        var artBadge = isStack
+            ? '<div class="absolute bottom-1.5 left-1.5 bg-gray-900/65 text-white text-[9px] font-medium px-1.5 py-0.5 rounded-full leading-tight">' + c._artCount + ' arts</div>'
+            : '';
+        return '<div class="group relative bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow border border-gray-100"' + stackStyle + ' id="cc-' + c.id + '">' +
             '<div class="aspect-[5/7] bg-gray-50 overflow-hidden relative">' +
-                (c.image_uri ? '<img src="' + _esc(c.image_uri) + '" class="w-full h-full ' + ((c.layout === 'planar' || c.layout === 'scheme' || c.layout === 'art_series' || c.layout === 'vanguard') ? 'object-contain' : 'object-cover') + '" alt="">' :
+                (c.image_uri ? '<img src="' + _esc(c.image_uri) + '" class="w-full h-full ' + imgClass + '" alt="">' :
                     '<div class="w-full h-full flex items-center justify-center text-gray-200 text-xs p-1 text-center">' + _esc(c.name) + '</div>') +
                 (c.quantity > 1 ? '<div class="absolute top-1.5 left-1.5 bg-black/70 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">×' + c.quantity + '</div>' : '') +
+                artBadge +
                 '<button class="col-remove-btn absolute top-1.5 right-1.5 w-6 h-6 bg-black/60 hover:bg-red-600 rounded-full text-white text-xs leading-none opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center" data-ccid="' + c.id + '" title="Remove">&times;</button>' +
                 '<button class="col-sell-btn absolute bottom-1.5 right-1.5 w-6 h-6 bg-green-600/80 hover:bg-green-600 rounded-full text-white text-[10px] font-bold leading-none opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center" ' +
                 'data-scryfall-id="' + _esc(c.scryfall_id) + '" data-name="' + _esc(c.name) + '" data-img="' + _esc(c.image_uri || '') + '" data-qty="' + c.quantity + '" data-set="' + _esc(c.set_name || '') + '" title="Sell this card">$</button>' +
             '</div>' +
             '<div class="p-1.5">' +
                 '<div class="font-semibold text-[11px] leading-tight truncate" title="' + _esc(c.name) + '">' + _esc(c.name) + '</div>' +
-                '<div class="text-[10px] text-gray-400 truncate leading-tight">' + setLine + '</div>' +
+                '<div class="text-[10px] text-gray-400 truncate leading-tight">' + (isStack ? c._artCount + ' printings' : setLine) + '</div>' +
                 '<div class="flex items-center justify-between mt-1">' +
                     '<span class="text-[11px] font-semibold text-gray-700">' + (c.price_omr ? _fmtOMR(c.price_omr) : '—') + '</span>' +
                     '<div class="flex items-center gap-0.5">' +

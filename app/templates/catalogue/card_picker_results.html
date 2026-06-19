@@ -52,10 +52,9 @@
 {% endfor %}
 {% if has_more %}
 <button
-    class="col-span-full mt-2 mx-auto block px-6 py-2 text-xs font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-500 transition-colors"
-    hx-get="/api/catalogue/cards/picker?name={{ name_enc }}&offset={{ next_offset }}"
-    hx-target="this"
-    hx-swap="outerHTML">
+    class="col-span-full mt-2 mx-auto block px-6 py-2 text-xs font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-500 transition-colors disabled:opacity-50"
+    data-load-more="/api/catalogue/cards/picker?name={{ name_enc }}&offset={{ next_offset }}"
+    data-target="#col-picker-results">
     Load {{ remaining }} more
 </button>
 {% endif %}
