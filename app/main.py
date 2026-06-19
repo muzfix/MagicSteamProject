@@ -132,11 +132,14 @@ def startup():
     _check_secrets()
     Base.metadata.create_all(bind=engine)
     _ensure_schema()
-    # Run cache warm-up in a background thread so the server starts immediately.
-    # First few requests on a cold start may miss the cache — that's fine.
+    # Cache warm-up — runs in background so the server starts immediately.
     t = threading.Thread(target=_warm_cache, daemon=True)
     t.start()
     print("[MagicSteam] Cache warm-up started in background", flush=True)
+    # Hourly price updater — checks Scryfall for new data, downloads only when changed.
+    t2 = threading.Thread(target=_run_price_scheduler, daemon=True)
+    t2.start()
+    print("[MagicSteam] Price updater scheduler started", flush=True)
 
 
 def _check_secrets() -> None:
@@ -286,6 +289,20 @@ def _ensure_schema() -> None:
                 ))
             conn.commit()
             print("[MagicSteam] idx_translations_printed_name created", flush=True)
+
+
+def _run_price_scheduler() -> None:
+    """Background thread: run price updater on startup then every hour."""
+    import time as _time
+    # Small delay so warm-up DB queries don't race with the price updater's bulk SELECT.
+    _time.sleep(15)
+    while True:
+        try:
+            from scripts.price_updater import run_if_stale
+            run_if_stale()
+        except Exception as exc:
+            print(f"[PriceUpdater] Unhandled error: {exc}", flush=True)
+        _time.sleep(3600)   # check once per hour
 
 
 def _warm_cache() -> None:

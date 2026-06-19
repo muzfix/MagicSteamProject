@@ -19,5 +19,8 @@ alembic/versions/*.py
 # Large binary data (GeoLite2 database — download separately)
 app/data/*.mmdb
 
+# Runtime price-updater state (regenerated automatically)
+data/price_state.json
+
 # Accidental pip install artifacts (e.g. "=2.8.0" created by pip install pkg=ver)
 =*
