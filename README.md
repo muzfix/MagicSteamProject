@@ -1,6 +1,6 @@
 # MagicSteam
 
-A local Magic: The Gathering card marketplace for the Oman market. Sellers list physical cards; buyers browse, search, and buy — with OMR pricing, Arabic-friendly search, and Tap Payments (OmanNet, Apple Pay, Visa/Mastercard) for checkout.
+A local Magic: The Gathering card marketplace for the Oman market. Sellers list physical cards; buyers browse, search, and buy — with OMR pricing, and Tap Payments (OmanNet, Apple Pay, Visa/Mastercard) for checkout.
 
 ---
 
