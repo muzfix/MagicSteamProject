@@ -5,6 +5,7 @@
     var _createType = 'collection';
     var _sellCardData = null;
     var _editMode = false;
+    var _COLLECTION_ID = null;  // set from data-collection-id attr in init()
 
     function _authH() { return { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + _token }; }
 
@@ -238,7 +239,11 @@
         fetch('/api/collections/' + _COLLECTION_ID, { headers: { 'Authorization': 'Bearer ' + _token } })
             .then(function (r) {
                 if (r.status === 401) { localStorage.removeItem('mtg_token'); window.location.href = '/auth/login'; return null; }
-                if (!r.ok) { var a = document.getElementById('cards-area'); if (a) a.innerHTML = '<div class="py-8 text-center text-sm text-red-500">Collection not found.</div>'; return null; }
+                if (!r.ok) {
+                    var a = document.getElementById('cards-area');
+                    if (a) a.innerHTML = '<div class="py-8 text-center text-sm text-red-500">Could not load — is the server running?</div>';
+                    return null;
+                }
                 return r.json();
             })
             .then(function (col) {
@@ -248,6 +253,10 @@
                 renderHeader(col);
                 renderCards(col);
                 updateSellBtn();
+            })
+            .catch(function (err) {
+                var a = document.getElementById('cards-area');
+                if (a) a.innerHTML = '<div class="py-8 text-center text-sm text-red-500">Network error — check server is running.<br><code class="text-xs">' + (err && err.message ? err.message : err) + '</code></div>';
             });
     }
 
@@ -635,7 +644,8 @@
     function updateSellBtn() {
         var btn = document.getElementById('sell-toggle-btn');
         if (!btn) return;
-        btn.textContent = _isListed ? 'Remove from Sale' : 'List Collection for Sale';
+        var noun = (_colData && _colData.type === 'deck') ? 'Deck' : 'Collection';
+        btn.textContent = _isListed ? 'Remove from Sale' : 'List ' + noun + ' for Sale';
     }
 
     function toggleSaleListing() {
@@ -733,20 +743,16 @@
     window.doImport = doImport;
 
     // ═══════════════════════════════════════════════════════════════════════════
-    // INIT
+    // INIT — script loads at bottom of <body> so DOM is complete; no defer needed
     // ═══════════════════════════════════════════════════════════════════════════
 
-    function init() {
-        if (typeof _COLLECTION_ID !== 'undefined') {
+    (function init() {
+        var area = document.getElementById('cards-area');
+        if (area && area.dataset.collectionId) {
+            _COLLECTION_ID = parseInt(area.dataset.collectionId, 10);
             initDetail();
         } else {
             initIndex();
         }
-    }
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-    } else {
-        init();
-    }
+    })();
 })();

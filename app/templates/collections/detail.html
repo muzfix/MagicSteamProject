@@ -93,8 +93,12 @@
 </div>
 
 <!-- ── Card grid ───────────────────────────────────────────────────────────── -->
-<div id="cards-area">
-    <div class="py-8 text-center text-sm text-gray-400">Loading collection…</div>
+<div id="cards-area"
+     data-collection-id="{{ collection_id }}"
+     data-type="{{ collection_type }}">
+    <div class="py-8 text-center text-sm text-gray-400">
+        Loading {{ "deck" if collection_type == "deck" else "collection" }}…
+    </div>
 </div>
 
 <!-- ── Variant picker popup ────────────────────────────────────────────────── -->
@@ -255,8 +259,5 @@
 
 {% endblock %}
 {% block scripts %}
-<script>
-var _COLLECTION_ID = {{ collection_id }};
-</script>
-<script src="/static/js/collections.js?v=5" defer></script>
+<script src="/static/js/collections.js?v=6"></script>
 {% endblock %}
