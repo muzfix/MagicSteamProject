@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}My Listings — MagicSteam{% endblock %}
+{% block content %}
+
+<div class="flex items-center justify-between mb-6">
+    <h1 class="text-xl font-bold">My Listings</h1>
+    <a href="/sell" class="text-sm border border-gray-900 rounded px-3 py-1.5 bg-gray-900 text-white hover:bg-gray-700 transition-colors">+ New Listing</a>
+</div>
+
+<div class="flex gap-2 mb-5 text-xs">
+    <button id="tab-active" onclick="setTab('active')"
+        class="px-3 py-1.5 rounded-full font-semibold bg-gray-900 text-white transition-colors">Active</button>
+    <button id="tab-all" onclick="setTab('all')"
+        class="px-3 py-1.5 rounded-full font-semibold bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors">All</button>
+</div>
+
+<div id="listings-count" class="text-xs text-gray-400 mb-4"></div>
+
+<div id="listings-container" class="divide-y divide-gray-100">
+    <div class="py-8 text-center text-sm text-gray-400">Loading…</div>
+</div>
+
+<!-- Edit price modal -->
+<div id="edit-modal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-sm p-6 space-y-4">
+        <h3 class="font-semibold text-sm">Edit Listing</h3>
+        <input type="hidden" id="edit-listing-id">
+        <div class="space-y-2">
+            <label class="text-xs text-gray-500">Price (OMR)</label>
+            <input type="number" id="edit-price" step="0.001" min="0.001"
+                class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-gray-600">
+        </div>
+        <div class="space-y-2">
+            <label class="text-xs text-gray-500">Quantity</label>
+            <input type="number" id="edit-qty" min="1"
+                class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-gray-600">
+        </div>
+        <div class="space-y-2">
+            <label class="text-xs text-gray-500">Description / Notes</label>
+            <input type="text" id="edit-desc" maxlength="200"
+                class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-gray-600">
+        </div>
+        <div id="edit-msg" class="hidden text-xs"></div>
+        <div class="flex gap-2 pt-1">
+            <button id="edit-save-btn"
+                class="flex-1 py-2 bg-gray-900 text-white rounded text-sm font-semibold hover:bg-gray-700 transition-colors">Save</button>
+            <button onclick="closeEditModal()"
+                class="flex-1 py-2 border border-gray-300 rounded text-sm hover:bg-gray-50 transition-colors">Cancel</button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/my_listings.js?v=1" defer></script>
+{% endblock %}

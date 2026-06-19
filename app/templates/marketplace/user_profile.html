@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}{{ profile.username }} — MagicSteam{% endblock %}
+{% block content %}
+
+<!-- Profile header -->
+<div class="flex items-center gap-3 mb-8">
+    <div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-lg font-bold text-gray-500">
+        {{ profile.username[0].upper() }}
+    </div>
+    <div>
+        <div class="flex items-center gap-2">
+            <span class="font-bold text-lg">{{ profile.username }}</span>
+            {% if profile.guild_tag %}
+            <span class="bg-gray-100 border border-gray-300 text-gray-600 rounded px-2 py-0.5 text-xs font-mono tracking-widest">{{ profile.guild_tag }}</span>
+            {% endif %}
+        </div>
+        <div class="text-xs text-gray-400">Member since {{ profile.member_since.strftime('%B %Y') if profile.member_since else '—' }}</div>
+    </div>
+</div>
+
+<!-- Bundle listings -->
+{% if profile.bundles %}
+<section class="mb-10">
+    <h2 class="font-semibold text-sm mb-4 flex items-center gap-2">
+        Decks &amp; Collections for Sale
+        <span class="text-xs text-gray-400 font-normal">({{ profile.bundle_count }})</span>
+    </h2>
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+        {% for bundle in profile.bundles %}
+        <div class="group cursor-pointer" onclick="buyBundle({{ bundle.id }})">
+            <div class="aspect-[5/7] bg-gray-100 rounded-lg overflow-hidden shadow-sm group-hover:shadow-md transition-shadow relative">
+                {% if bundle.cover_image_uri %}
+                <img src="{{ bundle.cover_image_uri }}" alt="{{ bundle.name }}"
+                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200">
+                {% else %}
+                <div class="w-full h-full flex items-center justify-center text-gray-300">
+                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                </div>
+                {% endif %}
+                <div class="absolute top-2 left-2">
+                    <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-black/50 text-white">{{ bundle.type.capitalize() }}</span>
+                </div>
+            </div>
+            <div class="mt-2 px-0.5">
+                <div class="font-semibold text-xs leading-tight truncate">{{ bundle.name }}</div>
+                <div class="text-[11px] text-gray-400 mt-0.5">{{ bundle.card_count }} cards</div>
+                <div class="text-xs font-semibold text-gray-800 mt-0.5">{{ "%.3f"|format(bundle.price) }} OMR</div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<!-- Individual listings -->
+<section>
+    <h2 class="font-semibold text-sm mb-4 flex items-center gap-2">
+        Individual Cards for Sale
+        <span class="text-xs text-gray-400 font-normal">({{ profile.listing_count }})</span>
+    </h2>
+
+    {% if profile.listings %}
+    <div class="divide-y divide-gray-100">
+        {% for listing in profile.listings %}
+        <div class="py-4 flex items-center gap-4">
+            {% if listing.image_uri %}
+            <img src="{{ listing.image_uri }}" alt="{{ listing.card_name }}" class="w-12 rounded shadow-sm flex-shrink-0">
+            {% else %}
+            <div class="w-12 h-16 bg-gray-100 rounded flex-shrink-0"></div>
+            {% endif %}
+            <div class="flex-1 min-w-0">
+                <div class="font-medium text-sm">{{ listing.card_name }}</div>
+                <div class="text-xs text-gray-500 mt-0.5">{{ listing.set_name }} &middot; {{ listing.condition }}</div>
+                <div class="text-xs text-gray-400">Qty {{ listing.quantity }}</div>
+            </div>
+            <div class="text-right flex-shrink-0">
+                <div class="font-semibold text-sm">{{ "%.3f"|format(listing.price) }} OMR</div>
+                <button class="buy-btn mt-1 text-xs border border-gray-300 rounded px-2 py-0.5 hover:bg-gray-100 transition-colors"
+                    data-listing-id="{{ listing.id }}">Buy</button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="py-12 text-center text-sm text-gray-400">No individual cards listed right now.</div>
+    {% endif %}
+</section>
+
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/marketplace.js?v=1" defer></script>
+<script>
+function buyBundle(bundleListingId) {
+    var token = localStorage.getItem('mtg_token');
+    if (!token) { window.location.href = '/auth/login'; return; }
+    fetch('/api/marketplace/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ bundle_listing_id: bundleListingId, quantity: 1 }),
+    }).then(function (r) { return r.json(); })
+    .then(function (d) {
+        if (d.id) { window.location.href = '/checkout/' + d.id; }
+    });
+}
+</script>
+{% endblock %}
