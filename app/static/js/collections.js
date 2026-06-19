@@ -4,6 +4,7 @@
     var _isListed = false;
     var _createType = 'collection';
     var _sellCardData = null;
+    var _editMode = false;
 
     function _authH() { return { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + _token }; }
 
@@ -205,6 +206,12 @@
         // Cover art click (cover-wrap has onclick still — keep for simplicity)
         var coverWrap = document.getElementById('cover-wrap');
         if (coverWrap) { coverWrap.removeAttribute('onclick'); coverWrap.addEventListener('click', openCoverPicker); }
+
+        // Edit mode / delete
+        var editBtn = document.getElementById('edit-mode-btn');
+        if (editBtn) editBtn.addEventListener('click', toggleEditMode);
+        var delBtn = document.getElementById('delete-collection-btn');
+        if (delBtn) delBtn.addEventListener('click', deleteCollection);
 
         // Sell-card modal
         var scConfirm = document.getElementById('sell-card-confirm-btn');
@@ -596,6 +603,31 @@
         el.textContent = text;
         el.classList.remove('hidden');
         setTimeout(function () { el.classList.add('hidden'); }, 3000);
+    }
+
+    // ── Edit mode / delete ────────────────────────────────────────────────────
+
+    function toggleEditMode() {
+        _editMode = !_editMode;
+        var editBtn = document.getElementById('edit-mode-btn');
+        var delBtn = document.getElementById('delete-collection-btn');
+        if (editBtn) editBtn.textContent = _editMode ? 'Done' : 'Edit';
+        if (delBtn) delBtn.classList.toggle('hidden', !_editMode);
+    }
+
+    function deleteCollection() {
+        var type = _colData ? _colData.type : 'collection';
+        var name = _colData ? _colData.name : 'this ' + type;
+        if (!confirm('Permanently delete "' + name + '"?\n\nThis removes all cards and cannot be undone.')) return;
+        fetch('/api/collections/' + _COLLECTION_ID, { method: 'DELETE', headers: _authH() })
+            .then(function (r) {
+                if (r.ok || r.status === 204) {
+                    window.location.href = '/my-collections';
+                } else {
+                    alert('Delete failed. Try again.');
+                }
+            })
+            .catch(function () { alert('Network error.'); });
     }
 
     // ── List entire collection for sale (bundle) ─────────────────────────────
