@@ -16,8 +16,8 @@
 </div>
 
 <!-- Create modal -->
-<div id="create-modal" class="hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl shadow-xl w-full max-w-sm p-6 space-y-4">
+<div id="create-modal" class="modal-backdrop hidden fixed inset-0 z-50 bg-black/60 flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white rounded-t-2xl sm:rounded-xl shadow-xl w-full sm:max-w-sm p-6 space-y-4 max-h-[90vh] overflow-y-auto">
         <h3 class="font-semibold">New Collection or Deck</h3>
 
         <div class="space-y-2">
@@ -73,5 +73,5 @@
 
 {% endblock %}
 {% block scripts %}
-<script src="/static/js/collections.js?v=3" defer></script>
+<script src="/static/js/collections.js?v=6"></script>
 {% endblock %}

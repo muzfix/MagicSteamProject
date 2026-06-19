@@ -4,6 +4,8 @@
     var _isListed = false;
     var _createType = 'collection';
     var _sellCardData = null;
+    var _editMode = false;
+    var _COLLECTION_ID = null;  // set from data-collection-id attr in init()
 
     function _authH() { return { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + _token }; }
 
@@ -19,11 +21,31 @@
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
+    // MODAL DISMISS — Escape key + click outside (shared by index + detail)
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    function bindModalDismiss() {
+        document.addEventListener('keydown', function (e) {
+            if (e.key !== 'Escape') return;
+            document.querySelectorAll('.modal-backdrop:not(.hidden)').forEach(function (m) {
+                m.classList.add('hidden');
+            });
+        });
+        document.querySelectorAll('.modal-backdrop').forEach(function (backdrop) {
+            backdrop.addEventListener('click', function (e) {
+                if (e.target === backdrop) backdrop.classList.add('hidden');
+            });
+        });
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
     // INDEX PAGE
     // ═══════════════════════════════════════════════════════════════════════════
 
     function initIndex() {
         if (!_token) { window.location.href = '/auth/login?next=/my-collections'; return; }
+
+        bindModalDismiss();
 
         // + New button
         var newBtn = document.getElementById('new-collection-btn');
@@ -172,6 +194,8 @@
     function initDetail() {
         if (!_token) { window.location.href = '/auth/login?next=/collections/' + _COLLECTION_ID; return; }
 
+        bindModalDismiss();
+
         // Main action buttons (onclick removed — bound here)
         var shareBtn = document.getElementById('share-btn');
         if (shareBtn) shareBtn.addEventListener('click', openShare);
@@ -183,6 +207,12 @@
         // Cover art click (cover-wrap has onclick still — keep for simplicity)
         var coverWrap = document.getElementById('cover-wrap');
         if (coverWrap) { coverWrap.removeAttribute('onclick'); coverWrap.addEventListener('click', openCoverPicker); }
+
+        // Edit mode / delete
+        var editBtn = document.getElementById('edit-mode-btn');
+        if (editBtn) editBtn.addEventListener('click', toggleEditMode);
+        var delBtn = document.getElementById('delete-collection-btn');
+        if (delBtn) delBtn.addEventListener('click', deleteCollection);
 
         // Sell-card modal
         var scConfirm = document.getElementById('sell-card-confirm-btn');
@@ -209,7 +239,11 @@
         fetch('/api/collections/' + _COLLECTION_ID, { headers: { 'Authorization': 'Bearer ' + _token } })
             .then(function (r) {
                 if (r.status === 401) { localStorage.removeItem('mtg_token'); window.location.href = '/auth/login'; return null; }
-                if (!r.ok) { var a = document.getElementById('cards-area'); if (a) a.innerHTML = '<div class="py-8 text-center text-sm text-red-500">Collection not found.</div>'; return null; }
+                if (!r.ok) {
+                    var a = document.getElementById('cards-area');
+                    if (a) a.innerHTML = '<div class="py-8 text-center text-sm text-red-500">Could not load — is the server running?</div>';
+                    return null;
+                }
                 return r.json();
             })
             .then(function (col) {
@@ -219,6 +253,10 @@
                 renderHeader(col);
                 renderCards(col);
                 updateSellBtn();
+            })
+            .catch(function (err) {
+                var a = document.getElementById('cards-area');
+                if (a) a.innerHTML = '<div class="py-8 text-center text-sm text-red-500">Network error — check server is running.<br><code class="text-xs">' + (err && err.message ? err.message : err) + '</code></div>';
             });
     }
 
@@ -576,12 +614,38 @@
         setTimeout(function () { el.classList.add('hidden'); }, 3000);
     }
 
+    // ── Edit mode / delete ────────────────────────────────────────────────────
+
+    function toggleEditMode() {
+        _editMode = !_editMode;
+        var editBtn = document.getElementById('edit-mode-btn');
+        var delBtn = document.getElementById('delete-collection-btn');
+        if (editBtn) editBtn.textContent = _editMode ? 'Done' : 'Edit';
+        if (delBtn) delBtn.classList.toggle('hidden', !_editMode);
+    }
+
+    function deleteCollection() {
+        var type = _colData ? _colData.type : 'collection';
+        var name = _colData ? _colData.name : 'this ' + type;
+        if (!confirm('Permanently delete "' + name + '"?\n\nThis removes all cards and cannot be undone.')) return;
+        fetch('/api/collections/' + _COLLECTION_ID, { method: 'DELETE', headers: _authH() })
+            .then(function (r) {
+                if (r.ok || r.status === 204) {
+                    window.location.href = '/my-collections';
+                } else {
+                    alert('Delete failed. Try again.');
+                }
+            })
+            .catch(function () { alert('Network error.'); });
+    }
+
     // ── List entire collection for sale (bundle) ─────────────────────────────
 
     function updateSellBtn() {
         var btn = document.getElementById('sell-toggle-btn');
         if (!btn) return;
-        btn.textContent = _isListed ? 'Remove from Sale' : 'List Collection for Sale';
+        var noun = (_colData && _colData.type === 'deck') ? 'Deck' : 'Collection';
+        btn.textContent = _isListed ? 'Remove from Sale' : 'List ' + noun + ' for Sale';
     }
 
     function toggleSaleListing() {
@@ -679,20 +743,16 @@
     window.doImport = doImport;
 
     // ═══════════════════════════════════════════════════════════════════════════
-    // INIT
+    // INIT — script loads at bottom of <body> so DOM is complete; no defer needed
     // ═══════════════════════════════════════════════════════════════════════════
 
-    function init() {
-        if (typeof _COLLECTION_ID !== 'undefined') {
+    (function init() {
+        var area = document.getElementById('cards-area');
+        if (area && area.dataset.collectionId) {
+            _COLLECTION_ID = parseInt(area.dataset.collectionId, 10);
             initDetail();
         } else {
             initIndex();
         }
-    }
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-    } else {
-        init();
-    }
+    })();
 })();

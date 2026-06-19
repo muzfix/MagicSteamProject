@@ -95,8 +95,14 @@ def my_collections_page(request: Request):
 
 
 @router.get("/collections/{collection_id}", response_class=HTMLResponse)
-def collection_detail_page(request: Request, collection_id: int):
-    return templates.TemplateResponse(request, "collections/detail.html", {"collection_id": collection_id})
+def collection_detail_page(request: Request, collection_id: int, db: Session = Depends(get_db)):
+    from app.modules.collections.models import Collection as ColModel
+    row = db.query(ColModel.type).filter(ColModel.id == collection_id).first()
+    col_type = row.type if row else "collection"
+    return templates.TemplateResponse(request, "collections/detail.html", {
+        "collection_id": collection_id,
+        "collection_type": col_type,
+    })
 
 
 @router.get("/privacy", response_class=HTMLResponse)
