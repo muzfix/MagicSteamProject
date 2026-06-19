@@ -178,6 +178,7 @@
         <h3 class="font-semibold text-sm">List for Sale</h3>
         <div class="space-y-1">
             <label class="text-xs text-gray-500">Price (OMR)</label>
+            <div id="sell-value-hint" class="hidden text-[11px] text-orange-500 font-medium mb-0.5"></div>
             <input type="number" id="sell-price" step="0.001" min="0.001" placeholder="0.000"
                 class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-gray-600">
         </div>
@@ -288,5 +289,5 @@
 
 {% endblock %}
 {% block scripts %}
-<script src="/static/js/collections.js?v=7"></script>
+<script src="/static/js/collections.js?v=8"></script>
 {% endblock %}

@@ -569,7 +569,7 @@
                             '<div class="text-xs font-medium leading-tight">' + _esc(v.set || '') + foil + '</div>' +
                             (v.released_at ? '<div class="text-[11px] text-gray-400 leading-tight">' + _esc(v.released_at) + '</div>' : '') +
                         '</div>' +
-                        '<div class="text-[11px] text-gray-500 flex-shrink-0 mr-1">' + (v.price ? _fmtOMR(v.price) : '—') + '</div>' +
+                        '<div class="text-[11px] text-gray-500 flex-shrink-0 mr-1">' + (v.price != null ? _fmtOMR(v.price) : '—') + '</div>' +
                         '<button class="variant-add-btn flex-shrink-0 text-[11px] font-bold bg-gray-900 text-white rounded px-2.5 py-1 hover:bg-gray-700 transition-colors whitespace-nowrap" data-scryfall-id="' + _esc(v.id || '') + '">Add</button>' +
                     '</div>';
                 }).join('')
@@ -874,6 +874,22 @@
         } else {
             var m = document.getElementById('sell-modal');
             if (m) m.classList.remove('hidden');
+            // Pre-fill asking price with the deck's estimated card value
+            var totalOmr = _colData && _colData.total_value_omr;
+            var priceInput = document.getElementById('sell-price');
+            if (priceInput) priceInput.value = totalOmr ? totalOmr.toFixed(3) : '';
+            var hint = document.getElementById('sell-value-hint');
+            if (hint) {
+                if (totalOmr) {
+                    hint.textContent = 'Estimated card value: ' + _fmtOMR(totalOmr);
+                    hint.classList.remove('hidden');
+                } else {
+                    hint.classList.add('hidden');
+                }
+            }
+            var sellMsg = document.getElementById('sell-msg');
+            if (sellMsg) sellMsg.classList.add('hidden');
+            setTimeout(function () { if (priceInput) priceInput.focus(); }, 50);
         }
     }
 

@@ -36,6 +36,22 @@ def _fmt_omr(prices: dict | None) -> str:
     return f"{baisa} bz" if baisa > 0 else "—"
 
 
+def _get_price_omr(prices: dict | None) -> float | None:
+    """Return the OMR price as a raw float for JSON serialisation (JS formats it)."""
+    from app.modules.catalogue.currency import add_local_prices
+    enriched = add_local_prices(prices)
+    if not enriched:
+        return None
+    omr = enriched.get("omr")
+    if omr is None:
+        return None
+    try:
+        v = float(omr)
+        return v if v > 0 else None
+    except (ValueError, TypeError):
+        return None
+
+
 templates.env.filters["fmt_omr"] = _fmt_omr
 
 
@@ -111,7 +127,7 @@ def group_picker_cards(cards: list, listing_counts: dict | None = None) -> list[
                 "img":         img,
                 "img_hd":      img_hd,
                 "img_back":    img_back,
-                "price":       _fmt_omr(v.prices),
+                "price":       _get_price_omr(v.prices),
                 "foil_label":  _foil_label(sd),
                 "listing_cnt": lc.get(v.id, 0),
             })

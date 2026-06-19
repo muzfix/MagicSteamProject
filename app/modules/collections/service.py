@@ -5,6 +5,7 @@ from sqlalchemy import func as sqlfunc
 from sqlalchemy.orm import Session
 
 from app.modules.catalogue.models import Card, MTGSet
+from app.modules.catalogue.currency import add_local_prices
 from app.modules.auth.models import User
 from app.modules.collections.models import (
     BundleListing, CardCategory, Collection, CollectionCard,
@@ -17,9 +18,19 @@ from app.modules.collections.schemas import (
 
 
 def _omr(card: Card) -> Optional[float]:
-    if card.prices and isinstance(card.prices, dict):
-        return card.prices.get("omr")
-    return None
+    if not card.prices or not isinstance(card.prices, dict):
+        return None
+    enriched = add_local_prices(card.prices)
+    if not enriched:
+        return None
+    omr = enriched.get("omr")
+    if omr is None:
+        return None
+    try:
+        v = float(omr)
+        return v if v > 0 else None
+    except (ValueError, TypeError):
+        return None
 
 
 def _set_year(card: Card, db: Session) -> Optional[str]:
