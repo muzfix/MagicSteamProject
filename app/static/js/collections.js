@@ -44,6 +44,24 @@
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
+    // MODAL DISMISS — Escape key + click outside (shared by index + detail)
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    function bindModalDismiss() {
+        document.addEventListener('keydown', function (e) {
+            if (e.key !== 'Escape') return;
+            document.querySelectorAll('.modal-backdrop:not(.hidden)').forEach(function (m) {
+                m.classList.add('hidden');
+            });
+        });
+        document.querySelectorAll('.modal-backdrop').forEach(function (backdrop) {
+            backdrop.addEventListener('click', function (e) {
+                if (e.target === backdrop) backdrop.classList.add('hidden');
+            });
+        });
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
     // INDEX PAGE
     // ═══════════════════════════════════════════════════════════════════════════
 
